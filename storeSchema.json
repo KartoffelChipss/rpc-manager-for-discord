@@ -1,0 +1,69 @@
+{
+    "appid": {
+        "type": "string"
+    },
+    "preset": {
+        "type": "string",
+        "default": "none"
+    },
+    "config": {
+        "details": {
+            "type": "string"
+        },
+        "state": {
+            "type": "string"
+        },
+        "large_image": {
+            "type": "string"
+        },
+        "large_text": {
+            "type": "string"
+        },
+        "small_image": {
+            "type": "string"
+        },
+        "small_text": {
+            "type": "string"
+        },
+        "party_players": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 100,
+            "default": -1
+        },
+        "party_maxplayers": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 100,
+            "default": -1
+        },
+        "start_time": {
+            "type": "string",
+            "default": "none"
+        },
+        "customtimestamp": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0
+        },
+        "buttons": [
+            {
+                "label": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            {
+                "label": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        ]
+    },
+    "presets": []
+}

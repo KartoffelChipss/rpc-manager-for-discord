@@ -1,0 +1,44 @@
+{
+  "name": "discord-rp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build-installer": "electron-builder"
+  },
+  "build": {
+    "appId": "discordrp",
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/typhon_colored_900x900.ico"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/typhon_colored_900x900.ico"
+    },
+    "nsis": {
+      "installerIcon": "assets/typhon_colored_900x900.ico",
+      "uninstallerIcon": "assets/typhon_colored_900x900.ico",
+      "uninstallDisplayName": "Typhon",
+      "license": "LICENSE",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^22.0.0",
+    "electron-builder": "^24.4.0"
+  },
+  "dependencies": {
+    "check-internet-connected": "^2.0.6",
+    "cross-fetch": "^3.1.5",
+    "discord-rpc": "^4.0.1",
+    "electron-store": "^8.1.0"
+  }
+}
