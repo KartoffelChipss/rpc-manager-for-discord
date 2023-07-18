@@ -17,7 +17,7 @@ window.addEventListener('DOMContentLoaded', () => {
 contextBridge.exposeInMainWorld(
     "api", {
         invoke: (channel, data) => {
-            let validChannels = ["minimize", "togglemaxwindow", "closeWindow", "updateActivity", "connectApp"]; // list of ipcMain.handle channels you want access in frontend to
+            let validChannels = ["minimize", "togglemaxwindow", "closeWindow", "updateActivity", "connectApp", "disconnectApp"]; // list of ipcMain.handle channels you want access in frontend to
             if (validChannels.includes(channel)) {
                 // ipcRenderer.invoke accesses ipcMain.handle channels like 'myfunc'
                 // make sure to include this return statement or you won't get your Promise back
@@ -32,24 +32,32 @@ contextBridge.exposeInMainWorld(
         // From main to render
         sendStorageData: (message) => {
             ipcRenderer.on('sendStorageData', message);
-        }
-    }
-)
+        },
 
-contextBridge.exposeInMainWorld(
-    'appConnectionSuccess', {
-        // From main to render
-        sendStorageData: (message) => {
+        appConnectionSuccess: (message) => {
             ipcRenderer.on('appConnectionSuccess', message);
-        }
-    }
-)
+        },
 
-contextBridge.exposeInMainWorld(
-    'appConnectionFailure', {
-        // From main to render
-        sendStorageData: (message) => {
+        appConnectionFailure: (message) => {
             ipcRenderer.on('appConnectionFailure', message);
         }
     }
-)
+);
+
+// contextBridge.exposeInMainWorld(
+//     'bridge', {
+//         // From main to render
+//         appConnectionSuccess: (message) => {
+//             ipcRenderer.on('appConnectionSuccess', message);
+//         }
+//     }
+// )
+
+// contextBridge.exposeInMainWorld(
+//     'bridge', {
+//         // From main to render
+//         appConnectionFailure: (message) => {
+//             ipcRenderer.on('appConnectionFailure', message);
+//         }
+//     }
+// );

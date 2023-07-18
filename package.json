@@ -8,21 +8,21 @@
     "build-installer": "electron-builder"
   },
   "build": {
-    "appId": "discordrp",
+    "appId": "discordcustomrpplus",
     "mac": {
       "target": "dmg",
-      "icon": "assets/typhon_colored_900x900.ico"
+      "icon": "public/img/logo.ico"
     },
     "win": {
       "target": [
         "nsis"
       ],
-      "icon": "assets/typhon_colored_900x900.ico"
+      "icon": "public/img/logo.ico"
     },
     "nsis": {
-      "installerIcon": "assets/typhon_colored_900x900.ico",
-      "uninstallerIcon": "assets/typhon_colored_900x900.ico",
-      "uninstallDisplayName": "Typhon",
+      "installerIcon": "public/img/logo.ico",
+      "uninstallerIcon": "public/img/logo.ico",
+      "uninstallDisplayName": "Discord Custom RP Plus",
       "license": "LICENSE",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
@@ -36,6 +36,7 @@
     "electron-builder": "^24.4.0"
   },
   "dependencies": {
+    "auto-launch": "^5.0.6",
     "check-internet-connected": "^2.0.6",
     "cross-fetch": "^3.1.5",
     "discord-rpc": "^4.0.1",

@@ -1,15 +1,19 @@
-const {app, BrowserWindow, Tray, Notification, nativeImage, Menu, MenuItem, globalShortcut, webContents, screen, clipboard, session} = require('electron')
+const {app, BrowserWindow, Tray, Notification, nativeImage, Menu, shell, MenuItem, globalShortcut, webContents, screen, clipboard, session} = require('electron')
 const { webFrame, ipcRenderer } = require('electron/renderer')
 const path = require('path')
 const fetch = require('cross-fetch'); // required 'fetch'
 const { ipcMain } = require('electron/main');
 const Store = require('electron-store');
 const RPC = require("discord-rpc");
+var AutoLaunch = require('auto-launch');
 
 const storeSchema = require("./storeSchema.json");
 
 const store = new Store();
 //store.openInEditor()
+
+let appStartTime = new Date().getTime();
+let lastUpdate = new Date().getTime();
 
 let client;
 
@@ -20,6 +24,11 @@ let client;
 //     partySize: 1,
 // })
 
+// fakeClient.setActivity({
+//     startTimestamp,
+//     endTimestamp
+// })
+
 let top = {};
 let systemTrayMsgSent = false;
 
@@ -27,8 +36,8 @@ app.whenReady().then(async () => {
     const screenHeight = screen.getPrimaryDisplay().workAreaSize.height;
     const screenWidth = screen.getPrimaryDisplay().workAreaSize.width;
 
-    const windowWidth = 1200;
-    const windowHeight = 950;
+    const windowWidth = 1300;
+    const windowHeight = 1050;
 
     let x = (screenWidth / 2) - (windowWidth / 2);
     let y = (screenHeight / 2) - (windowHeight / 2);
@@ -39,11 +48,13 @@ app.whenReady().then(async () => {
         height: windowHeight,
         y: y,
         x: x,
+        minHeight: 600,
+        minWidth: 850,
         frame: false,
         show: false,
         resizable: true,
         autoHideMenuBar: false,
-        icon: __dirname + '/assets/typhon_colored_900x900.ico',
+        icon: __dirname + '/public/img/logo.ico',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -57,14 +68,45 @@ app.whenReady().then(async () => {
     })
     
     top.mainWindow.show();
+
+    let autoLaunch = new AutoLaunch({
+        name: 'Discord Custom RP Plus',
+        path: app.getPath('exe'),
+    });
+
+    autoLaunch.isEnabled().then((isEnabled) => {
+        if (!isEnabled) autoLaunch.enable();
+    });
     
-    top.tray = new Tray(nativeImage.createEmpty());
+    top.tray = new Tray(__dirname + '/public/img/logo.ico');
 
     const menu = Menu.buildFromTemplate([
         {
+            label: "Help",
+            icon: nativeImage.createFromPath(__dirname + '/public/img/icons/help.ico').resize({width:16}),
+            click: (item, window, event) => {
+                shell.openExternal("http://www.google.com")
+            }
+        },
+        {
             label: "Open Menu",
+            icon: nativeImage.createFromPath(__dirname + '/public/img/icons/home.ico').resize({width:16}),
             click: (item, window, event) => {
                 top.mainWindow.show();
+            },
+        },
+        {
+            label: "Update Activity",
+            icon: nativeImage.createFromPath(__dirname + '/public/img/icons/reload.ico').resize({width:16}),
+            click: (item, window, event) => {
+                updateDCActivity(store.get("config"));
+                item.enabled = false;
+                item.toolTip = "Wait a moment before doing this again!"
+
+                setTimeout(() => {
+                    item.enabled = true;
+                    item.toolTip = undefined;
+                }, 15000)
             }
         },
         {
@@ -72,11 +114,12 @@ app.whenReady().then(async () => {
         },
         {
             label: "Terminate",
+            icon: nativeImage.createFromPath(__dirname + '/public/img/icons/off.ico').resize({width:16}),
             role: "quit"
         },
     ]);
 
-    top.tray.setToolTip("Discord Custom Rich Presence");
+    top.tray.setToolTip("Discord Custom RP Plus");
     top.tray.setContextMenu(menu);
 
     top.tray.on('click', function(e){
@@ -101,7 +144,9 @@ app.whenReady().then(async () => {
         if (!systemTrayMsgSent) {
             let trayNotification = new Notification({
                 title: undefined,
-                body: 'Discord Custom RP now lives in your System Tray!',
+                silent: true,
+                icon: nativeImage.createFromPath(__dirname + '/public/img/logo.ico'),
+                body: 'Discord Custom RP Plus now lives in your System Tray!',
             });
             trayNotification.show();
             systemTrayMsgSent = true;
@@ -140,6 +185,11 @@ app.whenReady().then(async () => {
     ipcMain.handle('connectApp', (event, arg) => {
         connectApp(arg.appid);
     });
+
+    ipcMain.handle("disconnectApp", (event, arg) => {
+        client.destroy();
+        client = undefined;
+    });
 })
 
 app.on("before-quit", ev => {
@@ -175,6 +225,8 @@ function undefinedIfEmpty(str) {
 
 function updateDCActivity(arg) {
     if (client) {
+        lastUpdate = new Date().getTime();
+
         let partyPlayers = Number(arg.party_players);
         if (partyPlayers === -1) partyPlayers = undefined;
 
@@ -199,6 +251,26 @@ function updateDCActivity(arg) {
 
         if (buttons.length < 1) buttons = undefined;
 
+        let now = new Date().getTime();
+        var startTimestamp = undefined;
+        if (arg.start_time) {
+            if (arg.start_time === "appstart") {
+                startTimestamp = appStartTime;
+            } else if (arg.start_time === "lastupdate") {
+                startTimestamp = lastUpdate;
+            } else if (arg.start_time === "localtime") {
+                let now = new Date();
+                let currentTime = now.getTime();
+                let hour = now.getHours();
+                let minute = now.getMinutes();
+                let second = now.getSeconds();
+                
+                startTimestamp = (currentTime - (hour * 60 * 60 * 1000) - (minute * 60 * 1000) - (second * 1000));
+            } else if (arg.start_time === "custom") {
+                startTimestamp = arg.customtimestamp || now;
+            }
+        }
+
         let activityObject = {
             details: undefinedIfEmpty(arg.details),
             state: undefinedIfEmpty(arg.state),
@@ -207,6 +279,12 @@ function updateDCActivity(arg) {
             smallImageKey: undefinedIfEmpty(arg.small_image),
             smallImageText: undefinedIfEmpty(arg.small_text),
             buttons: buttons,
+        }
+
+        if (now < startTimestamp && arg.start_time === "custom") {
+            activityObject.endTimestamp = startTimestamp;
+        } else {
+            activityObject.startTimestamp = startTimestamp;
         }
 
         if (partyPlayers && partyMaxPlayers) {
@@ -243,8 +321,24 @@ function connectApp(clientId) {
             if (!connectionSuccess) return;
             store.set("appid", clientId);
 
-            console.log(store.get())
+            fetch(`https://discordapp.com/api/oauth2/applications/${clientId}/assets`)
+                .then(res => res.json())
+                .then(data => {
+                    let assets = {};
 
-            top.mainWindow.webContents.send("appConnectionSuccess", {});
+                    data.forEach((asset) => {
+                        assets[asset.name] = {
+                            type: asset.type,
+                            id: asset.id,
+                        }
+                    });
+
+                    top.mainWindow.webContents.send("appConnectionSuccess", {
+                        assets: assets,
+                        user: client.user,
+                        application: client.application,
+                        appid: clientId,
+                    });
+                });
         })
 }

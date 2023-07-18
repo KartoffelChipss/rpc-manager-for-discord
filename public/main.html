@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord RP</title>
+    <title>Discord Custom RP Plus</title>
+    <link rel="icon" type="image/png" href="./img/logo.ico">
 
     <link href="./css/main.css" rel="stylesheet">
 </head>
 <body>
     <div class="frame">
         <div class="left">
-            <h1>Discord Custom Rich Presence</h1>
+            <img src="./img/logo.svg">
+            <h1>Discord Custom RP Plus</h1>
         </div>
         <div class="right">
             <button type="button" onclick="minimizeWindow()"><svg width="64px" height="64px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#fefefe"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M6.00001 11.25L18 11.25L18 12.75L6.00001 12.75L6.00001 11.25Z" fill="#fefefe"></path> </g></svg></button>
@@ -25,8 +27,8 @@
                 <label>Application ID</label>
                 <input type="text" name="appID" id="appID" placeholder="Insert your Application ID" maxlength="19">
             </div>
-            <button type="button" onclick="connectApp()" id="connectbtn" style="margin-right: 15px;">Connect</button>
-            <button type="button" onclick="disconnectApp()" id="disconnectBtn" disabled>Disconnect</button>
+            <button type="button" class="scalePush" onclick="connectApp()" id="connectbtn" style="margin-right: 15px;">Connect</button>
+            <button type="button" class="scalePush" onclick="disconnectApp()" id="disconnectBtn" disabled>Disconnect</button>
         </div>
 
         <div class="border"></div>
@@ -48,11 +50,11 @@
             <div class="inputSection" style="margin-bottom: 15px; margin-right: 15px;">
                 <label>Timestamp</label>
                 <select name="timestamp" id="timestamp" oninput="updatePreview()">
-                    <option value="none" selected>None</option>
-                    <option value="appstart">Since this app started</option>
-                    <option value="lastupdate">Since the last presence update</option>
-                    <option value="localtime">Your local time</option>
-                    <option value="custom">Custom timestamp</option>
+                    <option id="timestamp_none" value="none" selected>None</option>
+                    <option id="timestamp_appstart" value="appstart">Since this app started</option>
+                    <option id="timestamp_lastupdate" value="lastupdate">Since the last presence update</option>
+                    <option id="timestamp_localtime" value="localtime">Your local time</option>
+                    <option id="timestamp_custom" value="custom">Custom timestamp</option>
                 </select>
                 <input onchange="updatePreview()" type="datetime-local" name="customtimestamp" id="customtimestamp" style="display: none; margin-top: 15px;">
             </div>
@@ -116,23 +118,23 @@
             </div>
         </div>
 
-        <div class="row" style="margin-top: 30px;">
-            <button type="button" onclick="updateActivity()">Update Activity</button>
+        <div class="row" style="margin-top: 30px; margin-bottom: 15px;">
+            <button type="button" class="scalePush" onclick="updateActivity(this)">Update Activity</button>
         </div>
     </main>
 
     <main class="preview">
         <div class="outestBox">
             <div class="top">
-                <img src="./img/defaultavatar.png" class="pp">
+                <img src="./img/defaultavatar_purple.png" class="pp" id="preview_pp" onerror="this.src = './img/defaultavatar_purple.png'">
                 <div class="badges">
-                    <img src="https://assets-global.website-files.com/5f8dd67f8fdd6f51f0b50904/636ab89f1b3a3c2eec8ba5fe_Badge_developer_i.svg">
-                    <img src="https://i0.wp.com/www.followchain.org/wp-content/uploads/2023/06/icons8-hashtag-330.png?fit=330%2C330&ssl=1">
+                    <img src="./img/badge_dev.svg">
+                    <img src="./img/badge_hashtag.png">
                 </div>
             </div>
             <div class="innerBox">
                 <div class="nameSection">
-                    <span id="preview_username">Insert Application id to start</span>
+                    <span id="preview_username">Your username</span>
                 </div>
                 <div class="bio">
                     <span>ABOUT ME</span>
@@ -142,7 +144,7 @@
                 <div class="memberSection">
                     <span>DISCORD MEMBER SINCE</span>
                     <div style="display: flex; align-items: center;">
-                        <img src="https://files.cults3d.com/uploaders/13940850/illustration-file/af3a9ca5-76dd-4f06-b86d-bd7d73495f40/1bcc0f0aefe71b2c8ce66ffe8645d365.png">
+                        <img src="./img/discord_logo.png">
                         <span class="memberTimestamp">14. Sept. 2018</span>
                     </div>
                 </div>
@@ -150,8 +152,8 @@
                     <span class="title">PLAYING A GAME</span>
                     <div class="game">
                         <div class="imgBox">
-                            <img class="bigImg" id="preview_bigImg" src="https://strassburger.org/img/logos/revates-logo.png">
-                            <img class="smallImg" id="preview_smallImg" src="https://strassburger.org/img/logos/revates-logo.png">
+                            <img class="bigImg" id="preview_bigImg" src="https://strassburger.org/img/logos/revates-logo.png" onerror="this.style.display = 'none';">
+                            <img class="smallImg" id="preview_smallImg" src="https://strassburger.org/img/logos/revates-logo.png" onerror="this.style.display = 'none';">
                         </div>
                         <div class="textbox">
                             <span class="name" id="preview_appname">Your app name</span>

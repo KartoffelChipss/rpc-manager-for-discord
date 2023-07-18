@@ -1,3 +1,17 @@
+var assets = {};
+var currentAppID;
+var previewTimestamp;
+
+window.addEventListener('load', () => {
+    var now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  
+    now.setMilliseconds(null)
+    now.setSeconds(null)
+  
+    document.getElementById('customtimestamp').value = now.toISOString().slice(0, -1);
+});
+
 function closeWindow() {
     window.api.invoke("closeWindow");
 }
@@ -32,15 +46,52 @@ function updatePreview() {
     } else if (timestampMode === "appstart") {
         preview_timestampBox.style.display = "block";
         customtimestampInput.style.display = "none";
+
+        previewTimestamp = new Date(document.getElementById("customtimestamp").value).getTime();
     } else if (timestampMode === "lastupdate") {
         preview_timestampBox.style.display = "block";
         customtimestampInput.style.display = "none";
+
+        previewTimestamp = new Date(document.getElementById("customtimestamp").value).getTime();
     } else if (timestampMode === "localtime") {
         preview_timestampBox.style.display = "block";
         customtimestampInput.style.display = "none";
+
+        let now = new Date();
+        let currentTime = now.getTime();
+        let hour = now.getHours();
+        let minute = now.getMinutes();
+        let second = now.getSeconds();
+        
+        previewTimestamp = currentTime - (hour * 60 * 60) - (minute * 60) - second;
     } else if (timestampMode === "custom") {
         preview_timestampBox.style.display = "block";
         customtimestampInput.style.display = "block";
+
+        previewTimestamp = new Date(document.getElementById("customtimestamp").value).getTime();
+    }
+
+    let largeImgKey = document.getElementById("large_image").value
+    if (assets[largeImgKey]) {
+        document.getElementById("preview_bigImg").style.display = "block";
+        document.getElementById("preview_bigImg").src = `https://cdn.discordapp.com/app-assets/${currentAppID}/${assets[largeImgKey].id}.png?size=1024`;
+    } else {
+        document.getElementById("preview_bigImg").style.display = "none";
+    }
+
+    let smallImgKey = document.getElementById("small_image").value
+    if (assets[smallImgKey]) {
+        document.getElementById("preview_smallImg").style.display = "block";
+        document.getElementById("preview_smallImg").src = `https://cdn.discordapp.com/app-assets/${currentAppID}/${assets[smallImgKey].id}.png?size=1024`;
+    } else {
+        document.getElementById("preview_smallImg").style.display = "none";
+    }
+
+    // If only the small image is present
+    if (!assets[largeImgKey] && assets[smallImgKey]) {
+        document.getElementById("preview_smallImg").style.position = "relative";
+    } else {
+        document.getElementById("preview_smallImg").style.position = "absolute";
     }
 
     let button_1_label = document.getElementById("button_1_label").value;
@@ -84,10 +135,26 @@ window.bridge.sendStorageData((event, settings) => {
     document.getElementById("button_2_label").value = settings.config.buttons[1].label || "";
     document.getElementById("button_2_url").value = settings.config.buttons[1].url || "";
 
+    document.getElementById("customtimestamp").value = new Date(settings.config.customtimestamp).toISOString().slice(0, -1);
+
+    if (settings.config.start_time === "custom") {
+        document.getElementById("timestamp_none").selected = false;
+        document.getElementById("timestamp_custom").selected = true;
+    } else if (settings.config.start_time === "localtime") {
+        document.getElementById("timestamp_none").selected = false;
+        document.getElementById("timestamp_localtime").selected = true;
+    } else if (settings.config.start_time === "lastupdate") {
+        document.getElementById("timestamp_none").selected = false;
+        document.getElementById("timestamp_lastupdate").selected = true;
+    } else if (settings.config.start_time === "appstart") {
+        document.getElementById("timestamp_none").selected = false;
+        document.getElementById("timestamp_appstart").selected = true;
+    }
+
     updatePreview()
 });
 
-function updateActivity() {
+function updateActivity(btnEle) {
     let partyPlayers = Number(document.getElementById("partyAmount").value);
     if (partyPlayers <= 0) partyPlayers = -1;
 
@@ -104,7 +171,7 @@ function updateActivity() {
         "party_players": partyPlayers,
         "party_maxplayers": partyMayPlayers,
         "start_time": document.getElementById("timestamp").value,
-        "customtimestamp": undefined,
+        "customtimestamp": new Date(document.getElementById("customtimestamp").value).getTime(),
         "buttons": [
             {
                 "label": document.getElementById("button_1_label").value,
@@ -118,6 +185,14 @@ function updateActivity() {
     }
 
     window.api.invoke("updateActivity", dataObject);
+
+    btnEle.disabled = true;
+    btnEle.setAttribute("title", "Wait 15s before updating again!")
+
+    setTimeout(() => {
+        btnEle.disabled = false;
+        btnEle.setAttribute("title", "")
+    }, 15000)
 }
 
 function connectApp() {
@@ -128,7 +203,42 @@ function connectApp() {
     });
 }
 
+function disconnectApp() {
+    const connectbtn = document.getElementById("connectbtn");
+    const disconnectBtn = document.getElementById("disconnectBtn");
+    const appIdInput = document.getElementById("appID");
+
+    connectbtn.disabled = false;
+    disconnectBtn.disabled = true;
+    appIdInput.classList.remove("success");
+    appIdInput.classList.add("danger");
+
+    window.api.invoke("disconnectApp", {});
+}
+
+window.bridge.appConnectionFailure((event, data) => {
+    console.log("Connection failure")
+
+    const connectbtn = document.getElementById("connectbtn");
+    const disconnectBtn = document.getElementById("disconnectBtn");
+    const appIdInput = document.getElementById("appID");
+
+    connectbtn.disabled = false;
+    disconnectBtn.disabled = true;
+    appIdInput.classList.remove("success");
+    appIdInput.classList.add("danger");
+
+    assets = {};
+    currentAppID = undefined;
+
+    document.getElementById("preview_username").innerHTML = "Your username";
+    document.getElementById("preview_pp").src = "./img/defaultavatar_purple.png";
+    document.getElementById("preview_appname").innerHTML = "Your app name";
+});
+
 window.bridge.appConnectionSuccess((event, data) => {
+    console.log("Connection success")
+
     const connectbtn = document.getElementById("connectbtn");
     const disconnectBtn = document.getElementById("disconnectBtn");
     const appIdInput = document.getElementById("appID");
@@ -137,15 +247,16 @@ window.bridge.appConnectionSuccess((event, data) => {
     disconnectBtn.disabled = false;
     appIdInput.classList.add("success");
     appIdInput.classList.remove("danger");
-})
 
-window.bridge.appConnectionFailure((event, data) => {
-    const connectbtn = document.getElementById("connectbtn");
-    const disconnectBtn = document.getElementById("disconnectBtn");
-    const appIdInput = document.getElementById("appID");
+    assets = data.assets;
 
-    connectbtn.disabled = false;
-    disconnectBtn.disabled = true;
-    appIdInput.classList.add("success");
-    appIdInput.classList.remove("danger");
-})
+    currentAppID = data.appid;
+
+    document.getElementById("preview_username").innerHTML = data.user.username || "Username not found";
+    document.getElementById("preview_pp").src = `https://cdn.discordapp.com/avatars/${data.user.id}/${data.user.avatar}.jpg?size=128`;
+    document.getElementById("preview_appname").innerHTML = data.application.name;
+
+    setTimeout(() => {
+        updatePreview()
+    }, 5000)
+});
