@@ -1,7 +1,6 @@
-const {app, BrowserWindow, Tray, Notification, nativeImage, Menu, shell, MenuItem, globalShortcut, webContents, screen, clipboard, session} = require('electron')
-const { webFrame, ipcRenderer } = require('electron/renderer')
+const {app, BrowserWindow, Tray, Notification, nativeImage, Menu, shell, screen} = require('electron')
 const path = require('path')
-const fetch = require('cross-fetch'); // required 'fetch'
+const fetch = require('cross-fetch');
 const { ipcMain } = require('electron/main');
 const Store = require('electron-store');
 const RPC = require("discord-rpc");
@@ -17,22 +16,14 @@ let lastUpdate = new Date().getTime();
 
 let client;
 
-// let fakeClient = new RPC.Client()
-
-// fakeClient.setActivity({
-//     partyMax: 1,
-//     partySize: 1,
-// })
-
-// fakeClient.setActivity({
-//     startTimestamp,
-//     endTimestamp
-// })
-
 let top = {};
 let systemTrayMsgSent = false;
 
 app.whenReady().then(async () => {
+    if (process.platform === 'win32') {
+        app.setAppUserModelId("Discord Custom RP Plus");
+    }
+
     const screenHeight = screen.getPrimaryDisplay().workAreaSize.height;
     const screenWidth = screen.getPrimaryDisplay().workAreaSize.width;
 
@@ -43,7 +34,7 @@ app.whenReady().then(async () => {
     let y = (screenHeight / 2) - (windowHeight / 2);
 
     top.mainWindow = new BrowserWindow({
-        title: "Discord Custom RP Deluxe",
+        title: "Discord Custom RP Plus",
         width: windowWidth,
         height: windowHeight,
         y: y,
@@ -66,6 +57,13 @@ app.whenReady().then(async () => {
         top.mainWindow.webContents.send("sendStorageData", store.get())
         connectApp(store.get("appid"));
     })
+
+
+    // !!! COMMENT OUT FOR DEVELOPMENT !!! //
+
+    top.mainWindow.removeMenu();
+
+    // !!! COMMENT OUT FOR DEVELOPMENT !!! //
     
     top.mainWindow.show();
 
