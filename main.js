@@ -8,7 +8,75 @@ var AutoLaunch = require('auto-launch');
 
 const storeSchema = require("./storeSchema.json");
 
-const store = new Store();
+const store = new Store({
+    "appid": {
+        "type": "string"
+    },
+    "preset": {
+        "type": "string",
+        "default": "none"
+    },
+    "config": {
+        "details": {
+            "type": "string"
+        },
+        "state": {
+            "type": "string"
+        },
+        "large_image": {
+            "type": "string"
+        },
+        "large_text": {
+            "type": "string"
+        },
+        "small_image": {
+            "type": "string"
+        },
+        "small_text": {
+            "type": "string"
+        },
+        "party_players": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 100,
+            "default": -1
+        },
+        "party_maxplayers": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 100,
+            "default": -1
+        },
+        "start_time": {
+            "type": "string",
+            "default": "none"
+        },
+        "customtimestamp": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0
+        },
+        "buttons": [
+            {
+                "label": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            {
+                "label": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        ]
+    },
+    "presets": []
+});
 //store.openInEditor()
 
 let appStartTime = new Date().getTime();
@@ -27,8 +95,10 @@ app.whenReady().then(async () => {
     const screenHeight = screen.getPrimaryDisplay().workAreaSize.height;
     const screenWidth = screen.getPrimaryDisplay().workAreaSize.width;
 
-    const windowWidth = 1300;
-    const windowHeight = 1050;
+    let windowWidth = 1300;
+    let windowHeight = 1050;
+
+    if (screenHeight < 1300) windowHeight = 800
 
     let x = (screenWidth / 2) - (windowWidth / 2);
     let y = (screenHeight / 2) - (windowHeight / 2);
@@ -195,27 +265,6 @@ app.on("before-quit", ev => {
     top = null;
 });
 
-function updateClient() {
-    if (client) client.destroy();
-
-    let clientId = store.get("appid");
-
-    client = new RPC.Client({ transport: "ipc" })
-
-    client.on("ready", () => {
-        updateDCActivity(store.get("config"));
-
-        console.log("Set activbity to the following:")
-        console.log(store.get("config"))
-    });
-
-    client.login({
-        clientId: clientId
-    }).catch(err => {
-        if (err) console.log(err);
-    })
-}
-
 function undefinedIfEmpty(str) {
     if (!str || str.length === 0) return undefined
     else return str
@@ -224,6 +273,8 @@ function undefinedIfEmpty(str) {
 function updateDCActivity(arg) {
     if (client) {
         lastUpdate = new Date().getTime();
+
+        if (!arg) return;
 
         let partyPlayers = Number(arg.party_players);
         if (partyPlayers === -1) partyPlayers = undefined;
