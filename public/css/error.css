@@ -1,0 +1,26 @@
+main {
+  height: 100%;
+  width: 100%;
+  padding: 15px;
+  color: var(--white-1);
+}
+main h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+main p {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+main button.link {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-1);
+}
+main button.link:hover {
+  cursor: pointer;
+}/*# sourceMappingURL=error.css.map */

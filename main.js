@@ -75,7 +75,14 @@ const store = new Store({
             }
         ]
     },
-    "presets": []
+    "presets": [],
+    "logs": [],
+    "settings": {
+        "theme": {
+            "type": "string",
+            "default": "dark",
+        }
+    }
 });
 //store.openInEditor()
 
@@ -100,17 +107,18 @@ app.whenReady().then(async () => {
 
     if (screenHeight < 1300) windowHeight = 800
 
-    let x = (screenWidth / 2) - (windowWidth / 2);
-    let y = (screenHeight / 2) - (windowHeight / 2);
+    // let x = (screenWidth / 2) - (windowWidth / 2);
+    // let y = (screenHeight / 2) - (windowHeight / 2);
 
     top.mainWindow = new BrowserWindow({
         title: "Discord Custom RP Plus",
         width: windowWidth,
         height: windowHeight,
-        y: y,
-        x: x,
+        // y: y,
+        // x: x,
         minHeight: 600,
         minWidth: 850,
+        center: true,
         frame: false,
         show: false,
         resizable: true,
@@ -131,7 +139,7 @@ app.whenReady().then(async () => {
 
     // !!! COMMENT OUT FOR DEVELOPMENT !!! //
 
-    top.mainWindow.removeMenu();
+    //top.mainWindow.removeMenu();
 
     // !!! COMMENT OUT FOR DEVELOPMENT !!! //
     
@@ -153,7 +161,7 @@ app.whenReady().then(async () => {
             label: "Help",
             icon: nativeImage.createFromPath(__dirname + '/public/img/icons/help.ico').resize({width:16}),
             click: (item, window, event) => {
-                shell.openExternal("http://www.google.com")
+                shell.openExternal("http://tools.strassburger.org")
             }
         },
         {
@@ -221,26 +229,6 @@ app.whenReady().then(async () => {
         }
     });
 
-    // let clientId = store.get("appid");
-
-    // client = new RPC.Client({ transport: "ipc" })
-
-    // let partyPlayers = store.get("config.party_players");
-    // if (partyPlayers === -1) partyPlayers = undefined;
-
-    // let partyMaxPlayers = store.get("config.party_maxplayers");
-    // if (partyMaxPlayers === -1) partyMaxPlayers = undefined;
-
-    // client.on("ready", () => {
-    //     updateDCActivity(store.get("config"));
-    // });
-
-    // client.login({
-    //     clientId: clientId
-    // }).catch(err => {
-    //     if (err) console.log(err)
-    // })
-
     ipcMain.handle('updateActivity', (event, arg) => {
         updateDCActivity(arg);
 
@@ -258,6 +246,36 @@ app.whenReady().then(async () => {
         client.destroy();
         client = undefined;
     });
+
+    ipcMain.handle("openExternalLink", (event, arg) => {
+        shell.openExternal(arg.link);
+    })
+
+    ipcMain.handle("closeErrWindow", (event, arg) => {
+        if (top.errWindow?.isDestroyed()) return;
+
+        top.errWindow.close();
+    })
+
+    ipcMain.handle("openSettingsWindow", (event, arg) => {
+        openSettingsWindow();
+    })
+
+    ipcMain.handle("closeSettingsWindow", (event, arg) => {
+        if (top.settingsWindow?.isDestroyed()) return;
+
+        top.settingsWindow.close();
+    })
+
+    ipcMain.handle("changeTheme", (event, arg) => {
+        store.set("settings.theme", arg.theme);
+        
+        top.mainWindow.webContents.send("sendSettings", store.get("settings"));
+
+        if (!top.settingsWindow?.isDestroyed()) {
+            top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
+        }
+    })
 })
 
 app.on("before-quit", ev => {
@@ -363,6 +381,7 @@ function connectApp(clientId) {
                 console.log(err);
                 top.mainWindow.webContents.send("appConnectionFailure", err);
                 connectionSuccess = false;
+                openErrWindow(err)
                 return;
             }
         })
@@ -390,4 +409,106 @@ function connectApp(clientId) {
                     });
                 });
         })
+}
+
+function openErrWindow(err) {
+    if (top.errWindow && !top.errWindow.isDestroyed()) {
+        top.errWindow.loadFile("public/error.html").then(() => {
+            if (err) {
+                top.errWindow.webContents.send("sendErrDetails", {
+                    name: `${err.name}: ${err.message}`,
+                    message: getErrMessageFromName(err.message),
+                });
+            }
+            top.errWindow.show();
+        })
+
+        return;
+    }
+
+    top.errWindow = new BrowserWindow({
+        title: "Discord Custom RP Plus",
+        center: true,
+        width: 500,
+        height: 500,
+        minHeight: 500,
+        minWidth: 500,
+        frame: false,
+        show: false,
+        resizable: true,
+        autoHideMenuBar: false,
+        icon: __dirname + '/public/img/logo.ico',
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
+        }
+    });
+
+    top.errWindow.loadFile("public/error.html").then(() => {
+        if (err) {
+            top.errWindow.webContents.send("sendErrDetails", {
+                name: `${err.name}: ${err.message}`,
+                message: getErrMessageFromName(err.message),
+            });
+        }
+        top.errWindow.show();
+    })
+}
+
+function getErrMessageFromName(errName) {
+    switch(errName) {
+        case "Could not connect":
+            return `<p>This error mostly occurs, when Discord isn't running on your pc. Make sure that you started discord and have the "Settings > Windows Settings > Minimize to Tray" enabled if you want to close Discord.</p><p>Read more about this error <button type="button" class="link" onclick="openExternalLink('https:\/\/tools.strassburger.org')">here</button>.</p>`;
+        
+        case "connection closed":
+            return `<p>This error mostly occurs, when your application ID is wrong or you didn't enter any application ID at all. Make sure your app ID is correct and try again.</p><p>If you need help getting an application id, you can get help <button type="button" class="link" onclick="openExternalLink('https:\/\/tools.strassburger.org')">here</button>.</p>`;
+    
+        case "RPC_CONNECTION_TIMEOUT":
+            return `<p>This error mostly occurs, when your activity has been updated too often. To resolve this error, just wait a few minutes or try completely restarting Discord.</p>`
+
+        default:
+            return "none";
+    }
+}
+
+function openSettingsWindow() {
+    if (top.settingsWindow && !top.settingsWindow.isDestroyed()) {
+        top.settingsWindow.loadFile("public/settings.html").then(() => {
+            // top.settingsWindow.webContents.send("sendErrDetails", {
+            //     name: `${err.name}: ${err.message}`,
+            //     message: getErrMessageFromName(err.message),
+            // });
+            top.settingsWindow.show();
+        })
+
+        return;
+    }
+
+    top.settingsWindow = new BrowserWindow({
+        title: "Discord Custom RP Plus",
+        center: true,
+        width: 800,
+        height: 800,
+        minHeight: 500,
+        minWidth: 500,
+        frame: false,
+        show: false,
+        resizable: true,
+        autoHideMenuBar: false,
+        icon: __dirname + '/public/img/logo.ico',
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
+        }
+    });
+
+    top.settingsWindow.loadFile("public/settings.html").then(() => {
+        // top.settingsWindow.webContents.send("sendErrDetails", {
+        //     name: `${err.name}: ${err.message}`,
+        //     message: getErrMessageFromName(err.message),
+        // });
+        top.settingsWindow.show();
+    })
 }

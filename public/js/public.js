@@ -260,3 +260,13 @@ window.bridge.appConnectionSuccess((event, data) => {
         updatePreview()
     }, 5000)
 });
+
+function openExternalLink(link) {
+    window.api.invoke("openExternalLink", {
+        link: link,
+    })
+}
+
+function openSettings() {
+    window.api.invoke("openSettingsWindow", {});
+}

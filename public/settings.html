@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="icon" type="image/png" href="./img/logo.ico">
+
+    <link href="./css/main.css" rel="stylesheet">
+    <link href="./css/settings.css" rel="stylesheet">
+</head>
+<body>
+    <div class="frame">
+        <div class="left">
+            <img src="./img/logo.svg">
+            <h1>Settings</h1>
+        </div>
+        <div class="right">
+            <button type="button" onclick="closeSettingsWindow()" class="close"><svg width="64px" height="64px" viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#fefefe"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 21.32L21 3.32001" stroke="#fefefe" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M3 3.32001L21 21.32" stroke="#fefefe" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
+        </div>
+    </div>
+
+    <main>
+        <h2>Settings</h2>
+
+        <h3>Appearance</h3>
+        <div class="settingsBox">
+            <select oninput="changeTheme(this)">
+                <option value="dark" default>Dark</option>
+                <option value="light">Light</option>
+            </select>
+        </div>
+
+        <h3>Logging</h3>
+        <div class="settingsBox">
+            <button type="button">View Logs</button>
+            <button type="button">Clear Logs</button>
+            <button type="button">Activate logging</button>
+        </div>
+
+        <h3>Data</h3>
+        <div class="settingsBox">
+            <button type="button" onclick="delData('config')">Delete config data</button>
+            <button type="button" onclick="delData('presets')">Delete all presets</button>
+            <button type="button" onclick="delData('all')">Delete all saved data</button>
+        </div>
+    </main>
+
+    <script src="./js/settings.js"></script>
+</body>
+</html>

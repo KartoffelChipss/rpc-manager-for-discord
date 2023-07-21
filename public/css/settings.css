@@ -1,0 +1,53 @@
+main {
+  height: 100%;
+  width: 100%;
+  padding: 15px;
+  color: var(--white-1);
+}
+main h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 28px;
+  font-weight: 700;
+}
+main h3 {
+  margin: 0;
+  margin-bottom: 10px;
+  font-size: 22px;
+  font-weight: 600;
+}
+main .border {
+  margin: 15px 0;
+  margin-bottom: 30px;
+}
+main button, main select {
+  background-color: var(--grey-3);
+  border: none;
+  padding: 0;
+  height: 43px;
+  --padding: 10px;
+  border-radius: 3px;
+  padding: var(--padding);
+  font-size: 15px;
+  color: var(--white-1);
+  flex-grow: 1;
+  font-weight: 600;
+  margin-bottom: 15px;
+  width: -moz-fit-content;
+  width: fit-content;
+  min-width: 300px;
+}
+main button:hover, main select:hover {
+  cursor: pointer;
+}
+main button.disabled, main select.disabled {
+  filter: brightness(70%);
+}
+main button.disabled:hover, main select.disabled:hover {
+  cursor: default;
+}
+main .settingsBox {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}/*# sourceMappingURL=settings.css.map */

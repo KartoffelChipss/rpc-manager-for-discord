@@ -1,0 +1,30 @@
+main {
+    height: 100%;
+    width: 100%;
+    padding: 15px;
+    color: var(--white-1);
+
+    h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+
+    p {
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+    button.link {
+        background-color: transparent;
+        border: none;
+        padding: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--accent-1);
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+}
