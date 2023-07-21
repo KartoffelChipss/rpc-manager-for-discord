@@ -25,10 +25,22 @@
 
         <h3>Appearance</h3>
         <div class="settingsBox">
-            <select oninput="changeTheme(this)">
-                <option value="dark" default>Dark</option>
-                <option value="light">Light</option>
-            </select>
+            <div class="inputBox">
+                <label>Theme</label>
+                <select oninput="changeTheme(this)" id="themeSelect">
+                    <option value="dark" default id="theme_dark">Dark</option>
+                    <option value="light" id="theme_light">Light</option>
+                    <option value="extra_dark" id="theme_xtradark">Extra Dark</option>
+                    <option value="turquoise" id="theme_turquoise">Turquoise</option>
+                </select>
+            </div>
+            <div class="inputBox">
+                <label>Zoom</label>
+                <div class="rangeBox">
+                    <input onchange="changeZoom(this)" oninput="document.getElementById('zoomLabel').innerText = Number(this.value).toFixed(2);" id="zoomInput" type="range" min="0.5" max="2" step="0.01" value="1">
+                    <span id="zoomLabel">1</span>
+                </div>
+            </div>
         </div>
 
         <h3>Logging</h3>
@@ -46,6 +58,7 @@
         </div>
     </main>
 
+    <script src="./js/theme.js"></script>
     <script src="./js/settings.js"></script>
 </body>
 </html>

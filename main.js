@@ -81,6 +81,10 @@ const store = new Store({
         "theme": {
             "type": "string",
             "default": "dark",
+        },
+        "zoom": {
+            "type": "number",
+            "default": 1,
         }
     }
 });
@@ -132,6 +136,7 @@ app.whenReady().then(async () => {
     });
 
     top.mainWindow.loadFile("public/main.html").then(() => {
+        top.mainWindow.webContents.send("sendSettings", store.get("settings"));
         top.mainWindow.webContents.send("sendStorageData", store.get())
         connectApp(store.get("appid"));
     })
@@ -269,6 +274,16 @@ app.whenReady().then(async () => {
 
     ipcMain.handle("changeTheme", (event, arg) => {
         store.set("settings.theme", arg.theme);
+        
+        top.mainWindow.webContents.send("sendSettings", store.get("settings"));
+
+        if (!top.settingsWindow?.isDestroyed()) {
+            top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
+        }
+    })
+
+    ipcMain.handle("changeZoom", (event, arg) => {
+        store.set("settings.zoom", arg.zoomLevel);
         
         top.mainWindow.webContents.send("sendSettings", store.get("settings"));
 
@@ -420,6 +435,7 @@ function openErrWindow(err) {
                     message: getErrMessageFromName(err.message),
                 });
             }
+            top.errWindow.webContents.send("sendSettings", store.get("settings"));
             top.errWindow.show();
         })
 
@@ -452,6 +468,7 @@ function openErrWindow(err) {
                 message: getErrMessageFromName(err.message),
             });
         }
+        top.errWindow.webContents.send("sendSettings", store.get("settings"));
         top.errWindow.show();
     })
 }
@@ -479,6 +496,7 @@ function openSettingsWindow() {
             //     name: `${err.name}: ${err.message}`,
             //     message: getErrMessageFromName(err.message),
             // });
+            top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
             top.settingsWindow.show();
         })
 
@@ -509,6 +527,7 @@ function openSettingsWindow() {
         //     name: `${err.name}: ${err.message}`,
         //     message: getErrMessageFromName(err.message),
         // });
+        top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
         top.settingsWindow.show();
     })
 }

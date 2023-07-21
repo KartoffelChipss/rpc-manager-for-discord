@@ -20,6 +20,30 @@ main .border {
   margin: 15px 0;
   margin-bottom: 30px;
 }
+main .inputBox label {
+  margin-bottom: 5px;
+}
+main .rangeBox {
+  display: flex;
+  align-items: center;
+  max-width: 300px;
+}
+main .rangeBox span {
+  margin-left: 15px;
+}
+main input[type=range] {
+  width: 300px;
+  max-width: 100%;
+  accent-color: var(--accent-1);
+  flex-grow: 1;
+}
+main input[type=range]:hover {
+  cursor: pointer;
+}
+main input[type=range]:focus-visible {
+  outline: solid var(--accent-1) 3px;
+  outline-offset: 2px;
+}
 main button, main select {
   background-color: var(--grey-3);
   border: none;

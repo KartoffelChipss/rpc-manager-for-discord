@@ -15,6 +15,8 @@
     --success: #14A44D;
 
     --accent-1: #7c5dc6;
+
+    --zoom: 1;
 }
 
 body {
@@ -31,6 +33,8 @@ body {
     background-color: var(--bg-color);
 
     display: flex;
+
+    zoom: var(--zoom);
 }
 
 button:disabled {
@@ -72,9 +76,9 @@ button.scalePush {
 }
 
 .helpBtn {
-    --heightwidth: 20px;
+    --heightwidth: 18px;
     margin-left: 7px;
-    margin-bottom: 1px;
+    margin-bottom: 3px;
     background-color: transparent !important;
     height: var(--heightwidth) !important;
     width: var(--heightwidth) !important;
@@ -83,8 +87,14 @@ button.scalePush {
     max-width: var(--heightwidth);
     padding: 0 !important;
 
-    img {
+    img, svg {
         height: var(--heightwidth);
+        width: var(--heightwidth);
+
+        path {
+            stroke: var(--accent-1);
+            fill: var(--accent-1);
+        }
     }
 }
 
@@ -148,6 +158,10 @@ label {
             svg {
                 height: 15px;
                 width: 15px;
+
+                path {
+                    stroke: var(--white-1);
+                }
             }
 
             -webkit-app-region: no-drag;
@@ -301,6 +315,7 @@ main.controls {
 
         button.settingsBtn {
             background-color: var(--grey-1);
+            color: var(--white-1);
             border: none;
             width: auto;
             flex-grow: 0;
@@ -314,6 +329,11 @@ main.controls {
             svg {
                 height: 22px;
                 width: 22px;
+                stroke: var(--white-1);
+                
+                path, circle {
+                    stroke: var(--white-1);
+                }
             }
         }
 

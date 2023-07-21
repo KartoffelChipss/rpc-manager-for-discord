@@ -10,6 +10,7 @@
   --danger: #DC4C64;
   --success: #14A44D;
   --accent-1: #7c5dc6;
+  --zoom: 1;
 }
 
 body {
@@ -22,6 +23,7 @@ body {
   font-weight: 500;
   background-color: var(--bg-color);
   display: flex;
+  zoom: var(--zoom);
 }
 
 button:disabled {
@@ -58,9 +60,9 @@ button.scalePush:active {
 }
 
 .helpBtn {
-  --heightwidth: 20px;
+  --heightwidth: 18px;
   margin-left: 7px;
-  margin-bottom: 1px;
+  margin-bottom: 3px;
   background-color: transparent !important;
   height: var(--heightwidth) !important;
   width: var(--heightwidth) !important;
@@ -69,8 +71,13 @@ button.scalePush:active {
   max-width: var(--heightwidth);
   padding: 0 !important;
 }
-.helpBtn img {
+.helpBtn img, .helpBtn svg {
   height: var(--heightwidth);
+  width: var(--heightwidth);
+}
+.helpBtn img path, .helpBtn svg path {
+  stroke: var(--accent-1);
+  fill: var(--accent-1);
 }
 
 label {
@@ -127,6 +134,9 @@ label {
 .frame .right button svg {
   height: 15px;
   width: 15px;
+}
+.frame .right button svg path {
+  stroke: var(--white-1);
 }
 .frame .right button:hover {
   cursor: pointer;
@@ -256,6 +266,7 @@ main.controls .row button.disabled:hover {
 }
 main.controls .row button.settingsBtn {
   background-color: var(--grey-1);
+  color: var(--white-1);
   border: none;
   width: auto;
   flex-grow: 0;
@@ -269,6 +280,10 @@ main.controls .row button.settingsBtn {
 main.controls .row button.settingsBtn svg {
   height: 22px;
   width: 22px;
+  stroke: var(--white-1);
+}
+main.controls .row button.settingsBtn svg path, main.controls .row button.settingsBtn svg circle {
+  stroke: var(--white-1);
 }
 main.controls .row span.numOf {
   color: var(--light-grey);
