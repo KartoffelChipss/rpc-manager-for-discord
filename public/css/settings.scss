@@ -4,6 +4,9 @@ main {
     padding: 15px;
     color: var(--white-1);
 
+    height: 90vh;
+    overflow: auto;
+
     h2 {
         margin-top: 0;
         margin-bottom: 15px;
@@ -86,5 +89,30 @@ main {
         display: flex;
         flex-direction: column;
         margin-bottom: 15px;
+    }
+
+    .checkBoxInput {
+        display: flex;
+        align-items: center;
+
+        span.label {
+            margin-left: 5px;
+        }
+
+        margin-bottom: 15px;
+    }
+
+    &::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: var(--grey-1);
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        border-radius: 3px;
+        background: var(--accent-1);
     }
 }

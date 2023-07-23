@@ -2,6 +2,18 @@ function closeSettingsWindow() {
     window.api.invoke("closeSettingsWindow", {});
 }
 
+function delData(type) {
+    window.api.invoke("delData", {
+        type: type,
+    });
+}
+
+function changeLogging(checkboxEle) {
+    window.api.invoke('changelogging', {
+        value: checkboxEle.checked,
+    });
+}
+
 window.bridge.sendSettings((event, data) => {
     if (data.theme) {
         if (data.theme === "light") {
@@ -19,5 +31,9 @@ window.bridge.sendSettings((event, data) => {
     if (data.zoom) {
         document.getElementById("zoomInput").value = data.zoom;
         document.getElementById("zoomLabel").innerText = data.zoom.toFixed(2);
+    }
+
+    if (data.createLogs) {
+        document.getElementById("loggingCheckbox").setAttribute("checked", true);
     }
 });

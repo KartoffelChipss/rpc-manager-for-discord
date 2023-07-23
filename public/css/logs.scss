@@ -1,0 +1,119 @@
+main {
+    color: var(--white-1);
+    height: 100%;
+    width: 100%;
+    padding: 15px;
+
+    h2 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+
+        button {
+            --heightwidth: 20px;
+            margin-left: 3px;
+            margin-bottom: 0px;
+            background-color: transparent !important;
+            height: var(--heightwidth) !important;
+            width: var(--heightwidth) !important;
+            aspect-ratio: 1/1 !important;
+            min-width: 0;
+            max-width: var(--heightwidth);
+            padding: 0 !important;
+            border: none;
+
+            img, svg {
+                height: var(--heightwidth);
+                width: var(--heightwidth);
+
+                path {
+                    stroke: var(--accent-1);
+                    fill: var(--accent-1);
+                }
+            }
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+
+    .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .exportBtn {
+        background-color: transparent;
+        padding: 0;
+        border: none;
+        border-radius: 3px;
+        color: var(--accent-1);
+        font-size: 17px;
+        font-weight: 600;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    .logsBox {
+        display: flex;
+        flex-direction: column;
+        height: 570px;
+        overflow: auto;
+        padding-right: 10px;
+
+        .log {
+            background-color: var(--grey-2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+
+            h3 {
+                margin: 0;
+                margin: 5px 0;
+            }
+
+            .timestamp {
+                color: var(--light-grey);
+            }
+
+            .details {
+                margin: 0;
+            }
+        }
+
+        &::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        &::-webkit-scrollbar-track {
+            background: var(--grey-1);
+            border-radius: 3px;
+        }
+        
+        &::-webkit-scrollbar-thumb {
+            border-radius: 3px;
+            background: var(--accent-1);
+        }
+
+        .neutral {
+            color: var(--white-1);
+        }
+
+        .success {
+            color: var(--success);
+        }
+
+        .danger {
+            color: var(--danger);
+        }
+
+        .warning {
+            color: var(--warning);
+        }
+    }
+}

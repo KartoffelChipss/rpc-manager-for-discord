@@ -1,6 +1,6 @@
 {
   "name": "discord-rp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build-installer": "electron-builder"
   },
   "build": {
-    "appId": "discordcustomrpplus",
+    "appId": "discord-customrp-plus",
     "mac": {
       "target": "dmg",
       "icon": "public/img/logo.ico"
@@ -20,6 +20,11 @@
       "icon": "public/img/logo.ico"
     },
     "nsis": {
+      "customNsisBinary": {
+        "url": "https://github.com/electron-userland/electron-builder-binaries/releases/download",
+        "checksum": "VKMiizYdmNdJOWpRGz4trl4lD++BvYP2irAXpMilheUP0pc93iKlWAoP843Vlraj8YG19CVn0j+dCo/hURz9+Q==",
+        "version": "3.0.4.1"
+      },
       "installerIcon": "public/img/logo.ico",
       "uninstallerIcon": "public/img/logo.ico",
       "uninstallDisplayName": "Discord Custom RP Plus",
@@ -40,6 +45,7 @@
     "check-internet-connected": "^2.0.6",
     "cross-fetch": "^3.1.5",
     "discord-rpc": "^4.0.1",
-    "electron-store": "^8.1.0"
+    "electron-store": "^8.1.0",
+    "fs": "^0.0.1-security"
   }
 }

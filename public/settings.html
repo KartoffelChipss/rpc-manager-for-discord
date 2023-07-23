@@ -23,6 +23,8 @@
     <main>
         <h2>Settings</h2>
 
+        <p>Version 1.1.0</p>
+
         <h3>Appearance</h3>
         <div class="settingsBox">
             <div class="inputBox">
@@ -45,16 +47,22 @@
 
         <h3>Logging</h3>
         <div class="settingsBox">
-            <button type="button">View Logs</button>
-            <button type="button">Clear Logs</button>
-            <button type="button">Activate logging</button>
+            <div class="checkBoxInput">
+                <label class="switch" style="scale: 0.85;">
+                    <input type="checkbox" value="checked" id="loggingCheckbox" oninput="changeLogging(this)">
+                    <span class="slider round"></span>
+                </label>
+                <span class="label">Activate Logging</span>
+            </div>
+            <button type="button" onclick="window.api.invoke('openLogsWindow')" class="scalePush">View Logs</button>
+            <button type="button" onclick="delData('logs')" class="scalePush">Clear Logs</button>
         </div>
 
         <h3>Data</h3>
         <div class="settingsBox">
-            <button type="button" onclick="delData('config')">Delete config data</button>
-            <button type="button" onclick="delData('presets')">Delete all presets</button>
-            <button type="button" onclick="delData('all')">Delete all saved data</button>
+            <button type="button" class="scalePush" onclick="delData('config')">Delete config data</button>
+            <button type="button" class="scalePush" onclick="delData('presets')">Delete all presets</button>
+            <button type="button" class="scalePush" onclick="delData('all')">Delete all saved data</button>
         </div>
     </main>
 

@@ -3,6 +3,8 @@ main {
   width: 100%;
   padding: 15px;
   color: var(--white-1);
+  height: 90vh;
+  overflow: auto;
 }
 main h2 {
   margin-top: 0;
@@ -74,4 +76,23 @@ main .settingsBox {
   display: flex;
   flex-direction: column;
   margin-bottom: 15px;
+}
+main .checkBoxInput {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+main .checkBoxInput span.label {
+  margin-left: 5px;
+}
+main::-webkit-scrollbar {
+  width: 10px;
+}
+main::-webkit-scrollbar-track {
+  background: var(--grey-1);
+  border-radius: 3px;
+}
+main::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--accent-1);
 }/*# sourceMappingURL=settings.css.map */

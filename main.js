@@ -1,10 +1,13 @@
-const {app, BrowserWindow, Tray, Notification, nativeImage, Menu, shell, screen} = require('electron')
+const {app, BrowserWindow, Tray, Notification, dialog, nativeImage, Menu, shell, screen, nativeTheme} = require('electron')
 const path = require('path')
 const fetch = require('cross-fetch');
 const { ipcMain } = require('electron/main');
 const Store = require('electron-store');
 const RPC = require("discord-rpc");
 var AutoLaunch = require('auto-launch');
+const fs = require("fs");
+
+const availableLogTypes = ["neutral", "warning", "danger", "critical", "success"];
 
 const storeSchema = require("./storeSchema.json");
 
@@ -85,6 +88,10 @@ const store = new Store({
         "zoom": {
             "type": "number",
             "default": 1,
+        },
+        "createLogs": {
+            "type": "boolean",
+            "default": false,
         }
     }
 });
@@ -125,6 +132,7 @@ app.whenReady().then(async () => {
         center: true,
         frame: false,
         show: false,
+        backgroundColor: "#313338",
         resizable: true,
         autoHideMenuBar: false,
         icon: __dirname + '/public/img/logo.ico',
@@ -137,7 +145,7 @@ app.whenReady().then(async () => {
 
     top.mainWindow.loadFile("public/main.html").then(() => {
         top.mainWindow.webContents.send("sendSettings", store.get("settings"));
-        top.mainWindow.webContents.send("sendStorageData", store.get())
+        top.mainWindow.webContents.send("sendStorageData", store.get());
         connectApp(store.get("appid"));
     })
 
@@ -158,31 +166,36 @@ app.whenReady().then(async () => {
     autoLaunch.isEnabled().then((isEnabled) => {
         if (!isEnabled) autoLaunch.enable();
     });
+
+    let iconColor = "black";
+    if (nativeTheme.shouldUseDarkColors) {
+        iconColor = "white";
+    }
     
     top.tray = new Tray(__dirname + '/public/img/logo.ico');
 
     const menu = Menu.buildFromTemplate([
         {
             label: "Help",
-            icon: nativeImage.createFromPath(__dirname + '/public/img/icons/help.ico').resize({width:16}),
+            icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/help.ico`).resize({width:16}),
             click: (item, window, event) => {
                 shell.openExternal("http://tools.strassburger.org")
             }
         },
         {
             label: "Open Menu",
-            icon: nativeImage.createFromPath(__dirname + '/public/img/icons/home.ico').resize({width:16}),
+            icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/home.ico`).resize({width:16}),
             click: (item, window, event) => {
                 top.mainWindow.show();
             },
         },
         {
             label: "Update Activity",
-            icon: nativeImage.createFromPath(__dirname + '/public/img/icons/reload.ico').resize({width:16}),
+            icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/reload.ico`).resize({width:16}),
             click: (item, window, event) => {
                 updateDCActivity(store.get("config"));
                 item.enabled = false;
-                item.toolTip = "Wait a moment before doing this again!"
+                item.toolTip = "Wait a moment before doing this again!";
 
                 setTimeout(() => {
                     item.enabled = true;
@@ -194,8 +207,18 @@ app.whenReady().then(async () => {
             type: "separator"
         },
         {
+            label: "Settings",
+            icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/settings.ico`).resize({width:16}),
+            click: (item, window, event) => {
+                openSettingsWindow();
+            }
+        },
+        {
+            type: "separator"
+        },
+        {
             label: "Terminate",
-            icon: nativeImage.createFromPath(__dirname + '/public/img/icons/off.ico').resize({width:16}),
+            icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/off.ico`).resize({width:16}),
             role: "quit"
         },
     ]);
@@ -234,6 +257,18 @@ app.whenReady().then(async () => {
         }
     });
 
+    ipcMain.handle("delData", (event, arg) => {
+        if (arg.type === "all") {
+            store.clear();
+        } else if (arg.type === "config") {
+            store.delete("config");
+        } else if (arg.type === "presets") {
+            store.delete("presets");
+        } else if (arg.type === "logs") {
+            store.delete("logs");
+        }
+    });
+
     ipcMain.handle('updateActivity', (event, arg) => {
         updateDCActivity(arg);
 
@@ -245,11 +280,13 @@ app.whenReady().then(async () => {
 
     ipcMain.handle('connectApp', (event, arg) => {
         connectApp(arg.appid);
+        logAction("Tried to connect to app", `Tried to connect to '${arg.appid}'`);
     });
 
     ipcMain.handle("disconnectApp", (event, arg) => {
         client.destroy();
         client = undefined;
+        logAction("Disconnected app", ``);
     });
 
     ipcMain.handle("openExternalLink", (event, arg) => {
@@ -272,14 +309,34 @@ app.whenReady().then(async () => {
         top.settingsWindow.close();
     })
 
+    ipcMain.handle("openLogsWindow", (event, arg) => {
+        openLogsWindow();
+    })
+
+    ipcMain.handle("closeLogsWindow", (event, arg) => {
+        if (top.logsWindow?.isDestroyed()) return;
+
+        top.logsWindow.close();
+    })
+
+    ipcMain.handle("refreshLogs", (event, arg) => {
+        top.logsWindow.webContents.send("sendLogs", store.get("logs"));
+    });
+
     ipcMain.handle("changeTheme", (event, arg) => {
         store.set("settings.theme", arg.theme);
         
         top.mainWindow.webContents.send("sendSettings", store.get("settings"));
 
-        if (!top.settingsWindow?.isDestroyed()) {
+        if (top.settingsWindow && !top.settingsWindow?.isDestroyed()) {
             top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
         }
+
+        if (top.logsWindow && !top.logsWindow?.isDestroyed()) {
+            top.logsWindow.webContents.send("sendSettings", store.get("settings"));
+        }
+
+        logAction("Changed theme", `Changed theme to '${arg.theme}'`);
     })
 
     ipcMain.handle("changeZoom", (event, arg) => {
@@ -290,7 +347,41 @@ app.whenReady().then(async () => {
         if (!top.settingsWindow?.isDestroyed()) {
             top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
         }
+
+        logAction("Zoom changed", `Zoom changed to '${arg.zoomLevel}'`);
     })
+
+    ipcMain.handle("changelogging", (event, data) => {
+        store.set("settings.createLogs", data.value);
+
+        if (data.value === false) store.delete("logs");
+    });
+
+    ipcMain.handle("exportLogs", async (event, arg) => {
+        let logs = store.get("logs");
+
+        if (!logs) logs = [];
+
+        let options = {
+            title: "Save file",
+            defaultPath : "logs",
+            buttonLabel : "Save",
+
+            filters : [
+                { name: 'json', extensions: ['json'] },
+                { name: 'All Files', extensions: ['*'] }
+            ]
+        };
+
+        dialog.showSaveDialog(null, options).then(({ filePath }) => {
+            fs.writeFileSync(filePath, JSON.stringify(logs.reverse(), null, 2), 'utf-8');
+        }).catch(err => {
+            console.log(err);
+            logAction("Error while exporting logs", err.message + "", "warning");
+        })
+    })
+
+    logAction("App started", "", "success");
 })
 
 app.on("before-quit", ev => {
@@ -375,6 +466,8 @@ function updateDCActivity(arg) {
         }
 
         client.setActivity(activityObject)
+        var activityObjectStr = JSON.stringify(activityObject, null, 2);
+        logAction("Updated Activity", `Updated to the following:\n${activityObjectStr}`);
     }
 }
 
@@ -397,6 +490,7 @@ function connectApp(clientId) {
                 top.mainWindow.webContents.send("appConnectionFailure", err);
                 connectionSuccess = false;
                 openErrWindow(err)
+                logAction("Login failure", err.message + "", "warning");
                 return;
             }
         })
@@ -423,6 +517,8 @@ function connectApp(clientId) {
                         appid: clientId,
                     });
                 });
+
+            logAction("Login success", `Successful login to ${clientId}`);
         })
 }
 
@@ -436,8 +532,8 @@ function openErrWindow(err) {
                 });
             }
             top.errWindow.webContents.send("sendSettings", store.get("settings"));
-            top.errWindow.show();
         })
+        top.errWindow.show();
 
         return;
     }
@@ -452,6 +548,7 @@ function openErrWindow(err) {
         frame: false,
         show: false,
         resizable: true,
+        backgroundColor: "#313338",
         autoHideMenuBar: false,
         icon: __dirname + '/public/img/logo.ico',
         webPreferences: {
@@ -485,7 +582,7 @@ function getErrMessageFromName(errName) {
             return `<p>This error mostly occurs, when your activity has been updated too often. To resolve this error, just wait a few minutes or try completely restarting Discord.</p>`
 
         default:
-            return "none";
+            return `<p>This is an unexpected error. If this error continues to occurr, please report it on the <button type="button" class="link" onclick="openExternalLink('https:\/\/tools.strassburger.org/discord')">Support Discord</button></p>`;
     }
 }
 
@@ -497,8 +594,8 @@ function openSettingsWindow() {
             //     message: getErrMessageFromName(err.message),
             // });
             top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
-            top.settingsWindow.show();
         })
+        top.settingsWindow.show();
 
         return;
     }
@@ -512,9 +609,11 @@ function openSettingsWindow() {
         minWidth: 500,
         frame: false,
         show: false,
-        resizable: true,
+        resizable: false,
+        movable: true,
         autoHideMenuBar: false,
         icon: __dirname + '/public/img/logo.ico',
+        backgroundColor: "#313338",
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -523,11 +622,71 @@ function openSettingsWindow() {
     });
 
     top.settingsWindow.loadFile("public/settings.html").then(() => {
-        // top.settingsWindow.webContents.send("sendErrDetails", {
-        //     name: `${err.name}: ${err.message}`,
-        //     message: getErrMessageFromName(err.message),
-        // });
         top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
-        top.settingsWindow.show();
     })
+    top.settingsWindow.show();
+}
+
+function openLogsWindow() {
+    if (top.logsWindow && !top.logsWindow.isDestroyed()) {
+        top.logsWindow.loadFile("public/logs.html").then(() => {
+            // top.logsWindow.webContents.send("sendErrDetails", {
+            //     name: `${err.name}: ${err.message}`,
+            //     message: getErrMessageFromName(err.message),
+            // });
+            top.logsWindow.webContents.send("sendLogs", store.get("logs"));
+        })
+        top.logsWindow.show();
+
+        return;
+    }
+
+    top.logsWindow = new BrowserWindow({
+        title: "Discord Custom RP Plus",
+        center: true,
+        width: 500,
+        height: 700,
+        minHeight: 500,
+        minWidth: 500,
+        frame: false,
+        show: false,
+        resizable: false,
+        movable: true,
+        autoHideMenuBar: false,
+        icon: __dirname + '/public/img/logo.ico',
+        backgroundColor: "#313338",
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
+        }
+    });
+
+    top.logsWindow.loadFile("public/logs.html").then(() => {
+        top.logsWindow.webContents.send("sendLogs", store.get("logs"));
+    })
+    top.logsWindow.show();
+}
+
+function logAction(title, description, type) {
+    if (!store.get("settings.createLogs")) return;
+
+    let previousLogs = store.get("logs");
+
+    if (!previousLogs) previousLogs = [];
+
+    let currentTimestamp = new Date().getTime();
+
+    if (!type || !availableLogTypes.includes(type)) {
+        type = "neutral";
+    }
+
+    previousLogs.push({
+        title: title,
+        description: description,
+        timestamp: currentTimestamp,
+        type: type,
+    });
+
+    store.set("logs", previousLogs);
 }
