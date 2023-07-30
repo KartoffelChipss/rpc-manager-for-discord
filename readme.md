@@ -6,6 +6,8 @@ This app is heavily inspired by [customrp.xyz](https://www.customrp.xyz/), but i
 
 ## Download and Setup
 
+You can find a setup guide on the [website](https://tools.strassburger.org/discordrp)
+
 ### Windows
 
 1. Download the latest version from the [Releases Page](https://github.com/KartoffelChipss/discord-rp/releases)
@@ -29,14 +31,3 @@ If you want to build your own installer, you can use
 ```powershell
 npm run build-installer 
 ```
-
-## Translation
-
-If you want to help translate this app, you can help [here](https://poeditor.com/join/project/BGPi7Pz206).
-
-These languages are complete:
-
-- `en` - English
-- `de` - German
-
-If there are more languages complete, they will be added.
