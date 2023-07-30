@@ -37,3 +37,9 @@ window.bridge.sendSettings((event, data) => {
         document.getElementById("loggingCheckbox").setAttribute("checked", true);
     }
 });
+
+function openExternalLink(link) {
+    window.api.invoke("openExternalLink", {
+        link: link,
+    })
+}

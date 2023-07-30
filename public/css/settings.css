@@ -22,6 +22,13 @@ main .border {
   margin: 15px 0;
   margin-bottom: 30px;
 }
+main .teabBtn {
+  all: unset;
+  scale: 0.9;
+}
+main .teabBtn:hover {
+  cursor: pointer;
+}
 main .inputBox label {
   margin-bottom: 5px;
 }
