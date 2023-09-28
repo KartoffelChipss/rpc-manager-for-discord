@@ -1,6 +1,6 @@
-# <img src="https://file.strassburger.org/discordCustomRPlogoPng.png" height="30px"> Discord Custom RP Plus
+# <img src="https://file.strassburger.org/discordCustomRPlogoPng.png" height="30px"> RPC Manager for Discord
 
-Discord Custom RP Plus is a Discord Rich Presence Manager for Windows and MacOS.
+RPC Manager for Discord is a Discord Rich Presence Manager for Windows and MacOS.
 
 This app is heavily inspired by [customrp.xyz](https://www.customrp.xyz/), but introduces more features like a nicer GUI and a preview.
 
