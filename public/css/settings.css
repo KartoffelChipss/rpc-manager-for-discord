@@ -39,6 +39,9 @@ main .rangeBox {
 }
 main .rangeBox span {
   margin-left: 15px;
+  width: 30px;
+  min-width: 30px;
+  max-width: 30px;
 }
 main input[type=range] {
   width: 300px;
@@ -82,7 +85,7 @@ main button.disabled:hover, main select.disabled:hover {
 main .settingsBox {
   display: flex;
   flex-direction: column;
-  margin-bottom: 15px;
+  margin-bottom: 30px;
 }
 main .checkBoxInput {
   display: flex;

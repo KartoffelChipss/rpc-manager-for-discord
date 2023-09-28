@@ -1,6 +1,6 @@
 {
   "name": "discord-rp",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build-installer": "electron-builder"
   },
   "build": {
-    "appId": "discord-customrp-plus",
+    "appId": "rpc-manager-for-discord",
     "mac": {
       "target": "dmg",
       "icon": "public/img/logo.ico"
@@ -27,7 +27,7 @@
       },
       "installerIcon": "public/img/logo.ico",
       "uninstallerIcon": "public/img/logo.ico",
-      "uninstallDisplayName": "Discord Custom RP Plus",
+      "uninstallDisplayName": "RPC Manager for Discord",
       "license": "LICENSE",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true

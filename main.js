@@ -105,421 +105,436 @@ let client;
 let top = {};
 let systemTrayMsgSent = false;
 
-app.whenReady().then(async () => {
-    if (process.platform === 'win32') {
-        app.setAppUserModelId("Discord Custom RP Plus");
-    }
+const gotTheLock = app.requestSingleInstanceLock();
 
-    const screenHeight = screen.getPrimaryDisplay().workAreaSize.height;
-    const screenWidth = screen.getPrimaryDisplay().workAreaSize.width;
-
-    let windowWidth = 1300;
-    let windowHeight = 1050;
-
-    if (screenHeight < 1300) windowHeight = 800
-
-    // let x = (screenWidth / 2) - (windowWidth / 2);
-    // let y = (screenHeight / 2) - (windowHeight / 2);
-
-    top.mainWindow = new BrowserWindow({
-        title: "Discord Custom RP Plus",
-        width: windowWidth,
-        height: windowHeight,
-        // y: y,
-        // x: x,
-        minHeight: 600,
-        minWidth: 850,
-        center: true,
-        frame: false,
-        show: false,
-        backgroundColor: "#313338",
-        resizable: true,
-        autoHideMenuBar: false,
-        icon: __dirname + '/public/img/logo.ico',
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            nodeIntegration: false,
-            contextIsolation: true,
+if (!gotTheLock) {
+    app.quit()
+} else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+        if (top.mainWindow) {
+            top.mainWindow.show();
+            if (top.mainWindow.isMinimized()) top.mainWindow.restore();
+            top.mainWindow.focus();
         }
     });
 
-    top.mainWindow.loadFile("public/main.html").then(() => {
-        top.mainWindow.webContents.send("sendSettings", store.get("settings"));
-        top.mainWindow.webContents.send("sendStorageData", store.get());
-        connectApp(store.get("appid"));
-    })
-
-
-    // !!! COMMENT OUT FOR DEVELOPMENT !!! //
-
-    //top.mainWindow.removeMenu();
-
-    // !!! COMMENT OUT FOR DEVELOPMENT !!! //
+    app.whenReady().then(async () => {
+        if (process.platform === 'win32') {
+            app.setAppUserModelId("RPC Manager for Discord");
+        }
     
-    top.mainWindow.show();
-
-    let autoLaunch = new AutoLaunch({
-        name: 'Discord Custom RP Plus',
-        path: app.getPath('exe'),
-    });
-
-    autoLaunch.isEnabled().then((isEnabled) => {
-        if (!isEnabled) autoLaunch.enable();
-    });
-
-    let iconColor = "black";
-    if (nativeTheme.shouldUseDarkColors) {
-        iconColor = "white";
-    }
+        const screenHeight = screen.getPrimaryDisplay().workAreaSize.height;
+        const screenWidth = screen.getPrimaryDisplay().workAreaSize.width;
     
-    top.tray = new Tray(__dirname + '/public/img/logo.ico');
-
-    const menu = Menu.buildFromTemplate([
-        {
-            label: "Help",
-            icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/help.ico`).resize({width:16}),
-            click: (item, window, event) => {
-                shell.openExternal("http://tools.strassburger.org")
+        let windowWidth = 1300;
+        let windowHeight = 1050;
+    
+        if (screenHeight < 1300) windowHeight = 800
+    
+        // let x = (screenWidth / 2) - (windowWidth / 2);
+        // let y = (screenHeight / 2) - (windowHeight / 2);
+    
+        top.mainWindow = new BrowserWindow({
+            title: "RPC Manager for Discord",
+            width: windowWidth,
+            height: windowHeight,
+            // y: y,
+            // x: x,
+            minHeight: 600,
+            minWidth: 850,
+            center: true,
+            frame: false,
+            show: false,
+            backgroundColor: "#313338",
+            resizable: true,
+            autoHideMenuBar: false,
+            icon: __dirname + '/public/img/logo.ico',
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js'),
+                nodeIntegration: false,
+                contextIsolation: true,
             }
-        },
-        {
-            label: "Open Menu",
-            icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/home.ico`).resize({width:16}),
-            click: (item, window, event) => {
-                top.mainWindow.show();
+        });
+    
+        top.mainWindow.loadFile("public/main.html").then(() => {
+            top.mainWindow.webContents.send("sendSettings", store.get("settings"));
+            top.mainWindow.webContents.send("sendStorageData", store.get());
+            connectApp(store.get("appid"));
+        })
+    
+    
+        // !!! COMMENT OUT FOR DEVELOPMENT !!! //
+    
+        //top.mainWindow.removeMenu();
+    
+        // !!! COMMENT OUT FOR DEVELOPMENT !!! //
+        
+        top.mainWindow.show();
+    
+        let autoLaunch = new AutoLaunch({
+            name: 'RPC Manager for Discord',
+            path: app.getPath('exe'),
+        });
+    
+        autoLaunch.isEnabled().then((isEnabled) => {
+            if (!isEnabled) autoLaunch.enable();
+        });
+    
+        let iconColor = "black";
+        if (nativeTheme.shouldUseDarkColors) {
+            iconColor = "white";
+        }
+        
+        top.tray = new Tray(__dirname + '/public/img/logo.ico');
+    
+        const menu = Menu.buildFromTemplate([
+            {
+                label: "Help",
+                icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/help.ico`).resize({width:16}),
+                click: (item, window, event) => {
+                    shell.openExternal("http://tools.strassburger.org")
+                }
             },
-        },
-        {
-            label: "Update Activity",
-            icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/reload.ico`).resize({width:16}),
-            click: (item, window, event) => {
-                updateDCActivity(store.get("config"));
-                item.enabled = false;
-                item.toolTip = "Wait a moment before doing this again!";
-
-                setTimeout(() => {
-                    item.enabled = true;
-                    item.toolTip = undefined;
-                }, 15000)
+            {
+                label: "Open Menu",
+                icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/home.ico`).resize({width:16}),
+                click: (item, window, event) => {
+                    top.mainWindow.show();
+                },
+            },
+            {
+                label: "Update Activity",
+                icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/reload.ico`).resize({width:16}),
+                click: (item, window, event) => {
+                    updateDCActivity(store.get("config"));
+                    item.enabled = false;
+                    item.toolTip = "Wait a moment before doing this again!";
+    
+                    setTimeout(() => {
+                        item.enabled = true;
+                        item.toolTip = undefined;
+                    }, 15000)
+                }
+            },
+            {
+                type: "separator"
+            },
+            {
+                label: "Settings",
+                icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/settings.ico`).resize({width:16}),
+                click: (item, window, event) => {
+                    openSettingsWindow();
+                }
+            },
+            {
+                type: "separator"
+            },
+            {
+                label: "Terminate",
+                icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/off.ico`).resize({width:16}),
+                role: "quit"
+            },
+        ]);
+    
+        top.tray.setToolTip("RPC Manager for Discord");
+        top.tray.setContextMenu(menu);
+    
+        top.tray.on('click', function(e){
+            if (top.mainWindow.isVisible()) {
+                top.mainWindow.hide()
+            } else {
+                top.mainWindow.show()
             }
-        },
-        {
-            type: "separator"
-        },
-        {
-            label: "Settings",
-            icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/settings.ico`).resize({width:16}),
-            click: (item, window, event) => {
-                openSettingsWindow();
-            }
-        },
-        {
-            type: "separator"
-        },
-        {
-            label: "Terminate",
-            icon: nativeImage.createFromPath(__dirname + `/public/img/icons/${iconColor}/off.ico`).resize({width:16}),
-            role: "quit"
-        },
-    ]);
-
-    top.tray.setToolTip("Discord Custom RP Plus");
-    top.tray.setContextMenu(menu);
-
-    top.tray.on('click', function(e){
-        if (top.mainWindow.isVisible()) {
-            top.mainWindow.hide()
-        } else {
-            top.mainWindow.show()
-        }
-    });
-
-    ipcMain.handle('minimize', (event, arg) => {
-        top.mainWindow.isMinimized() ? top.mainWindow.restore() : top.mainWindow.minimize();
-    });
-
-    ipcMain.handle('togglemaxwindow', (event, arg) => {
-        top.mainWindow.isMaximized() ? top.mainWindow.unmaximize() : top.mainWindow.maximize();
-    });
-
-    ipcMain.handle('closeWindow', (event, arg) => {
-        top.mainWindow.hide();
-
-        if (!systemTrayMsgSent) {
-            let trayNotification = new Notification({
-                title: undefined,
-                silent: true,
-                icon: nativeImage.createFromPath(__dirname + '/public/img/logo.ico'),
-                body: 'Discord Custom RP Plus now lives in your System Tray!',
-            });
-            trayNotification.show();
-            systemTrayMsgSent = true;
-        }
-    });
-
-    ipcMain.handle("delData", (event, arg) => {
-        if (arg.type === "all") {
-            store.clear();
-        } else if (arg.type === "config") {
-            store.delete("config");
-        } else if (arg.type === "presets") {
-            store.delete("presets");
-        } else if (arg.type === "logs") {
-            store.delete("logs");
-        }
-    });
-
-    ipcMain.handle('updateActivity', (event, arg) => {
-        updateDCActivity(arg);
-
-        store.set("config", arg);
-
-        console.log("Saved new Config")
-    });
-
-
-    ipcMain.handle('connectApp', (event, arg) => {
-        connectApp(arg.appid);
-        logAction("Tried to connect to app", `Tried to connect to '${arg.appid}'`);
-    });
-
-    ipcMain.handle("disconnectApp", (event, arg) => {
-        client.destroy();
-        client = undefined;
-        logAction("Disconnected app", ``);
-    });
-
-    ipcMain.handle("openExternalLink", (event, arg) => {
-        shell.openExternal(arg.link);
-    })
-
-    ipcMain.handle("closeErrWindow", (event, arg) => {
-        if (top.errWindow?.isDestroyed()) return;
-
-        top.errWindow.close();
-    })
-
-    ipcMain.handle("openSettingsWindow", (event, arg) => {
-        openSettingsWindow();
-    })
-
-    ipcMain.handle("closeSettingsWindow", (event, arg) => {
-        if (top.settingsWindow?.isDestroyed()) return;
-
-        top.settingsWindow.close();
-    })
-
-    ipcMain.handle("openLogsWindow", (event, arg) => {
-        openLogsWindow();
-    })
-
-    ipcMain.handle("closeLogsWindow", (event, arg) => {
-        if (top.logsWindow?.isDestroyed()) return;
-
-        top.logsWindow.close();
-    })
-
-    ipcMain.handle("refreshLogs", (event, arg) => {
-        top.logsWindow.webContents.send("sendLogs", store.get("logs"));
-    });
-
-    ipcMain.handle("changeTheme", (event, arg) => {
-        store.set("settings.theme", arg.theme);
-        
-        top.mainWindow.webContents.send("sendSettings", store.get("settings"));
-
-        if (top.settingsWindow && !top.settingsWindow?.isDestroyed()) {
-            top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
-        }
-
-        if (top.logsWindow && !top.logsWindow?.isDestroyed()) {
-            top.logsWindow.webContents.send("sendSettings", store.get("settings"));
-        }
-
-        logAction("Changed theme", `Changed theme to '${arg.theme}'`);
-    })
-
-    ipcMain.handle("changeZoom", (event, arg) => {
-        store.set("settings.zoom", arg.zoomLevel);
-        
-        top.mainWindow.webContents.send("sendSettings", store.get("settings"));
-
-        if (!top.settingsWindow?.isDestroyed()) {
-            top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
-        }
-
-        logAction("Zoom changed", `Zoom changed to '${arg.zoomLevel}'`);
-    })
-
-    ipcMain.handle("changelogging", (event, data) => {
-        store.set("settings.createLogs", data.value);
-
-        if (data.value === false) store.delete("logs");
-    });
-
-    ipcMain.handle("exportLogs", async (event, arg) => {
-        let logs = store.get("logs");
-
-        if (!logs) logs = [];
-
-        let options = {
-            title: "Save file",
-            defaultPath : "logs",
-            buttonLabel : "Save",
-
-            filters : [
-                { name: 'json', extensions: ['json'] },
-                { name: 'All Files', extensions: ['*'] }
-            ]
-        };
-
-        dialog.showSaveDialog(null, options).then(({ filePath }) => {
-            fs.writeFileSync(filePath, JSON.stringify(logs.reverse(), null, 2), 'utf-8');
-        }).catch(err => {
-            console.log(err);
-            logAction("Error while exporting logs", err.message + "", "warning");
-        })
-    })
-
-    logAction("App started", "", "success");
-})
-
-app.on("before-quit", ev => {
-    top.win.removeAllListeners("close");
-    top = null;
-});
-
-function undefinedIfEmpty(str) {
-    if (!str || str.length === 0) return undefined
-    else return str
-}
-
-function updateDCActivity(arg) {
-    if (client) {
-        lastUpdate = new Date().getTime();
-
-        if (!arg) return;
-
-        let partyPlayers = Number(arg.party_players);
-        if (partyPlayers === -1) partyPlayers = undefined;
-
-        let partyMaxPlayers = Number(arg.party_maxplayers);
-        if (partyMaxPlayers === -1) partyMaxPlayers = undefined;
-
-        let buttons = []
-
-        if (arg.buttons[0].label && arg.buttons[0].url) {
-            buttons.push({
-                "label": undefinedIfEmpty(arg.buttons[0].label),
-                "url": undefinedIfEmpty(arg.buttons[0].url),
-            })
-        }
-
-        if (arg.buttons[1].label && arg.buttons[0].url) {
-            buttons.push({
-                "label": undefinedIfEmpty(arg.buttons[1].label),
-                "url": undefinedIfEmpty(arg.buttons[1].url),
-            })
-        }
-
-        if (buttons.length < 1) buttons = undefined;
-
-        let now = new Date().getTime();
-        var startTimestamp = undefined;
-        if (arg.start_time) {
-            if (arg.start_time === "appstart") {
-                startTimestamp = appStartTime;
-            } else if (arg.start_time === "lastupdate") {
-                startTimestamp = lastUpdate;
-            } else if (arg.start_time === "localtime") {
-                let now = new Date();
-                let currentTime = now.getTime();
-                let hour = now.getHours();
-                let minute = now.getMinutes();
-                let second = now.getSeconds();
-                
-                startTimestamp = (currentTime - (hour * 60 * 60 * 1000) - (minute * 60 * 1000) - (second * 1000));
-            } else if (arg.start_time === "custom") {
-                startTimestamp = arg.customtimestamp || now;
-            }
-        }
-
-        let activityObject = {
-            details: undefinedIfEmpty(arg.details),
-            state: undefinedIfEmpty(arg.state),
-            largeImageKey: undefinedIfEmpty(arg.large_image),
-            largeImageText: undefinedIfEmpty(arg.large_text),
-            smallImageKey: undefinedIfEmpty(arg.small_image),
-            smallImageText: undefinedIfEmpty(arg.small_text),
-            buttons: buttons,
-        }
-
-        if (now < startTimestamp && arg.start_time === "custom") {
-            activityObject.endTimestamp = startTimestamp;
-        } else {
-            activityObject.startTimestamp = startTimestamp;
-        }
-
-        if (partyPlayers && partyMaxPlayers) {
-            activityObject.partyMax = partyMaxPlayers;
-            activityObject.partySize = partyPlayers;
-        }
-
-        client.setActivity(activityObject)
-        var activityObjectStr = JSON.stringify(activityObject, null, 2);
-        logAction("Updated Activity", `Updated to the following:\n${activityObjectStr}`);
-    }
-}
-
-function connectApp(clientId) {
-
-    console.log(clientId)
-
-    var connectionSuccess = true;
-
-    client = new RPC.Client({ transport: "ipc" })
-
-    client.on("ready", () => {
-        updateDCActivity(store.get("config"));
-    });
-
-    client.login({ clientId: clientId })
-        .catch(err => {
-            if (err) {
-                console.log(err);
-                top.mainWindow.webContents.send("appConnectionFailure", err);
-                connectionSuccess = false;
-                openErrWindow(err)
-                logAction("Login failure", err.message + "", "warning");
-                return;
-            }
-        })
-        .then(() => {
-            if (!connectionSuccess) return;
-            store.set("appid", clientId);
-
-            fetch(`https://discordapp.com/api/oauth2/applications/${clientId}/assets`)
-                .then(res => res.json())
-                .then(data => {
-                    let assets = {};
-
-                    data.forEach((asset) => {
-                        assets[asset.name] = {
-                            type: asset.type,
-                            id: asset.id,
-                        }
-                    });
-
-                    top.mainWindow.webContents.send("appConnectionSuccess", {
-                        assets: assets,
-                        user: client.user,
-                        application: client.application,
-                        appid: clientId,
-                    });
+        });
+    
+        ipcMain.handle('minimize', (event, arg) => {
+            top.mainWindow.isMinimized() ? top.mainWindow.restore() : top.mainWindow.minimize();
+        });
+    
+        ipcMain.handle('togglemaxwindow', (event, arg) => {
+            top.mainWindow.isMaximized() ? top.mainWindow.unmaximize() : top.mainWindow.maximize();
+        });
+    
+        ipcMain.handle('closeWindow', (event, arg) => {
+            top.mainWindow.hide();
+    
+            if (!systemTrayMsgSent) {
+                let trayNotification = new Notification({
+                    title: undefined,
+                    silent: true,
+                    icon: nativeImage.createFromPath(__dirname + '/public/img/logo.ico'),
+                    body: 'RPC Manager for Discord now lives in your System Tray!',
                 });
-
-            logAction("Login success", `Successful login to ${clientId}`);
+                trayNotification.show();
+                systemTrayMsgSent = true;
+            }
+        });
+    
+        ipcMain.handle("delData", (event, arg) => {
+            if (arg.type === "all") {
+                store.clear();
+            } else if (arg.type === "config") {
+                store.delete("config");
+            } else if (arg.type === "presets") {
+                store.delete("presets");
+            } else if (arg.type === "logs") {
+                store.delete("logs");
+            }
+        });
+    
+        ipcMain.handle('updateActivity', (event, arg) => {
+            updateDCActivity(arg);
+    
+            store.set("config", arg);
+    
+            console.log("Saved new Config")
+        });
+    
+    
+        ipcMain.handle('connectApp', (event, arg) => {
+            connectApp(arg.appid);
+            logAction("Tried to connect to app", `Tried to connect to '${arg.appid}'`);
+        });
+    
+        ipcMain.handle("disconnectApp", (event, arg) => {
+            client.destroy();
+            client = undefined;
+            logAction("Disconnected app", ``);
+        });
+    
+        ipcMain.handle("openExternalLink", (event, arg) => {
+            shell.openExternal(arg.link);
         })
+    
+        ipcMain.handle("closeErrWindow", (event, arg) => {
+            if (top.errWindow?.isDestroyed()) return;
+    
+            top.errWindow.close();
+        })
+    
+        ipcMain.handle("openSettingsWindow", (event, arg) => {
+            openSettingsWindow();
+        })
+    
+        ipcMain.handle("closeSettingsWindow", (event, arg) => {
+            if (top.settingsWindow?.isDestroyed()) return;
+    
+            top.settingsWindow.close();
+        })
+    
+        ipcMain.handle("openLogsWindow", (event, arg) => {
+            openLogsWindow();
+        })
+    
+        ipcMain.handle("closeLogsWindow", (event, arg) => {
+            if (top.logsWindow?.isDestroyed()) return;
+    
+            top.logsWindow.close();
+        })
+    
+        ipcMain.handle("refreshLogs", (event, arg) => {
+            top.logsWindow.webContents.send("sendLogs", store.get("logs"));
+        });
+    
+        ipcMain.handle("changeTheme", (event, arg) => {
+            store.set("settings.theme", arg.theme);
+            
+            top.mainWindow.webContents.send("sendSettings", store.get("settings"));
+    
+            if (top.settingsWindow && !top.settingsWindow?.isDestroyed()) {
+                top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
+            }
+    
+            if (top.logsWindow && !top.logsWindow?.isDestroyed()) {
+                top.logsWindow.webContents.send("sendSettings", store.get("settings"));
+            }
+    
+            logAction("Changed theme", `Changed theme to '${arg.theme}'`);
+        })
+    
+        ipcMain.handle("changeZoom", (event, arg) => {
+            store.set("settings.zoom", arg.zoomLevel);
+            
+            top.mainWindow.webContents.send("sendSettings", store.get("settings"));
+    
+            if (!top.settingsWindow?.isDestroyed()) {
+                top.settingsWindow.webContents.send("sendSettings", store.get("settings"));
+            }
+    
+            logAction("Zoom changed", `Zoom changed to '${arg.zoomLevel}'`);
+        })
+    
+        ipcMain.handle("changelogging", (event, data) => {
+            store.set("settings.createLogs", data.value);
+    
+            if (data.value === false) store.delete("logs");
+        });
+    
+        ipcMain.handle("exportLogs", async (event, arg) => {
+            let logs = store.get("logs");
+    
+            if (!logs) logs = [];
+    
+            let options = {
+                title: "Save file",
+                defaultPath : "logs",
+                buttonLabel : "Save",
+    
+                filters : [
+                    { name: 'json', extensions: ['json'] },
+                    { name: 'All Files', extensions: ['*'] }
+                ]
+            };
+    
+            dialog.showSaveDialog(null, options).then(({ filePath }) => {
+                fs.writeFileSync(filePath, JSON.stringify(logs.reverse(), null, 2), 'utf-8');
+            }).catch(err => {
+                console.log(err);
+                logAction("Error while exporting logs", err.message + "", "warning");
+            })
+        })
+    
+        logAction("App started", "", "success");
+    })
+    
+    app.on("before-quit", ev => {
+        top.win.removeAllListeners("close");
+        top = null;
+    });
+    
+    function undefinedIfEmpty(str) {
+        if (!str || str.length === 0) return undefined
+        else return str
+    }
+    
+    function updateDCActivity(arg) {
+        if (client) {
+            lastUpdate = new Date().getTime();
+    
+            if (!arg) return;
+    
+            let partyPlayers = Number(arg.party_players);
+            if (partyPlayers === -1) partyPlayers = undefined;
+    
+            let partyMaxPlayers = Number(arg.party_maxplayers);
+            if (partyMaxPlayers === -1) partyMaxPlayers = undefined;
+    
+            let buttons = []
+    
+            if (arg.buttons[0].label && arg.buttons[0].url) {
+                buttons.push({
+                    "label": undefinedIfEmpty(arg.buttons[0].label),
+                    "url": undefinedIfEmpty(arg.buttons[0].url),
+                })
+            }
+    
+            if (arg.buttons[1].label && arg.buttons[0].url) {
+                buttons.push({
+                    "label": undefinedIfEmpty(arg.buttons[1].label),
+                    "url": undefinedIfEmpty(arg.buttons[1].url),
+                })
+            }
+    
+            if (buttons.length < 1) buttons = undefined;
+    
+            let now = new Date().getTime();
+            var startTimestamp = undefined;
+            if (arg.start_time) {
+                if (arg.start_time === "appstart") {
+                    startTimestamp = appStartTime;
+                } else if (arg.start_time === "lastupdate") {
+                    startTimestamp = lastUpdate;
+                } else if (arg.start_time === "localtime") {
+                    let now = new Date();
+                    let currentTime = now.getTime();
+                    let hour = now.getHours();
+                    let minute = now.getMinutes();
+                    let second = now.getSeconds();
+                    
+                    startTimestamp = (currentTime - (hour * 60 * 60 * 1000) - (minute * 60 * 1000) - (second * 1000));
+                } else if (arg.start_time === "custom") {
+                    startTimestamp = arg.customtimestamp || now;
+                }
+            }
+    
+            let activityObject = {
+                details: undefinedIfEmpty(arg.details),
+                state: undefinedIfEmpty(arg.state),
+                largeImageKey: undefinedIfEmpty(arg.large_image),
+                largeImageText: undefinedIfEmpty(arg.large_text),
+                smallImageKey: undefinedIfEmpty(arg.small_image),
+                smallImageText: undefinedIfEmpty(arg.small_text),
+                buttons: buttons,
+            }
+    
+            if (now < startTimestamp && arg.start_time === "custom") {
+                activityObject.endTimestamp = startTimestamp;
+            } else {
+                activityObject.startTimestamp = startTimestamp;
+            }
+    
+            if (partyPlayers && partyMaxPlayers) {
+                activityObject.partyMax = partyMaxPlayers;
+                activityObject.partySize = partyPlayers;
+            }
+    
+            client.setActivity(activityObject)
+            var activityObjectStr = JSON.stringify(activityObject, null, 4);
+            logAction("Updated Activity", `Updated to the following:\n<br><br><div class="jsobjectbox">${activityObjectStr}</div>`);
+            console.log(activityObjectStr)
+        }
+    }
+    
+    function connectApp(clientId) {
+    
+        console.log(clientId)
+    
+        var connectionSuccess = true;
+    
+        client = new RPC.Client({ transport: "ipc" })
+    
+        client.on("ready", () => {
+            updateDCActivity(store.get("config"));
+        });
+    
+        client.login({ clientId: clientId })
+            .catch(err => {
+                if (err) {
+                    console.log(err);
+                    top.mainWindow.webContents.send("appConnectionFailure", err);
+                    connectionSuccess = false;
+                    openErrWindow(err)
+                    logAction("Login failure", err.message + "", "warning");
+                    return;
+                }
+            })
+            .then(() => {
+                if (!connectionSuccess) return;
+                store.set("appid", clientId);
+    
+                fetch(`https://discordapp.com/api/oauth2/applications/${clientId}/assets`)
+                    .then(res => res.json())
+                    .then(data => {
+                        let assets = {};
+    
+                        data.forEach((asset) => {
+                            assets[asset.name] = {
+                                type: asset.type,
+                                id: asset.id,
+                            }
+                        });
+    
+                        top.mainWindow.webContents.send("appConnectionSuccess", {
+                            assets: assets,
+                            user: client.user,
+                            application: client.application,
+                            appid: clientId,
+                        });
+                    });
+    
+                logAction("Login success", `Successful login to ${clientId}`);
+            })
+    }
 }
 
 function openErrWindow(err) {
@@ -539,7 +554,7 @@ function openErrWindow(err) {
     }
 
     top.errWindow = new BrowserWindow({
-        title: "Discord Custom RP Plus",
+        title: "RPC Manager for Discord",
         center: true,
         width: 500,
         height: 500,
@@ -601,7 +616,7 @@ function openSettingsWindow() {
     }
 
     top.settingsWindow = new BrowserWindow({
-        title: "Discord Custom RP Plus",
+        title: "RPC Manager for Discord",
         center: true,
         width: 800,
         height: 800,
@@ -642,7 +657,7 @@ function openLogsWindow() {
     }
 
     top.logsWindow = new BrowserWindow({
-        title: "Discord Custom RP Plus",
+        title: "RPC Manager for Discord",
         center: true,
         width: 500,
         height: 700,

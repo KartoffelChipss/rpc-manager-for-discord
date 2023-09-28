@@ -11,6 +11,7 @@ main {
   height: 100%;
   width: 100%;
   padding: 15px;
+  width: calc(100% - 30px);
 }
 main h2 {
   margin: 0;
@@ -84,6 +85,22 @@ main .logsBox .log .timestamp {
 }
 main .logsBox .log .details {
   margin: 0;
+}
+main .logsBox .log .jsobjectbox {
+  max-width: 100%;
+  overflow-x: scroll;
+  white-space: pre;
+}
+main .logsBox .log .jsobjectbox::-webkit-scrollbar {
+  height: 10px;
+}
+main .logsBox .log .jsobjectbox::-webkit-scrollbar-track {
+  background: var(--grey-1);
+  border-radius: 3px;
+}
+main .logsBox .log .jsobjectbox::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--accent-1);
 }
 main .logsBox::-webkit-scrollbar {
   width: 10px;
