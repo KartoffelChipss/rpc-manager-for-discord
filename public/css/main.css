@@ -282,7 +282,7 @@ main.controls .row button.disabled {
 main.controls .row button.disabled:hover {
   cursor: default;
 }
-main.controls .row button.settingsBtn {
+main.controls .row button.settingsBtn, main.controls .row button.savepresetbtn {
   background-color: var(--grey-1);
   color: var(--white-1);
   border: none;
@@ -295,12 +295,12 @@ main.controls .row button.settingsBtn {
   align-items: center;
   justify-content: center;
 }
-main.controls .row button.settingsBtn svg {
+main.controls .row button.settingsBtn svg, main.controls .row button.savepresetbtn svg {
   height: 22px;
   width: 22px;
   stroke: var(--white-1);
 }
-main.controls .row button.settingsBtn svg path, main.controls .row button.settingsBtn svg circle {
+main.controls .row button.settingsBtn svg path, main.controls .row button.settingsBtn svg circle, main.controls .row button.savepresetbtn svg path, main.controls .row button.savepresetbtn svg circle {
   stroke: var(--white-1);
 }
 main.controls .row span.numOf {
@@ -309,28 +309,29 @@ main.controls .row span.numOf {
   font-size: 15px;
 }
 
-main.preview {
+main.right {
   height: -moz-max-content;
   height: max-content;
   display: flex;
+  flex-direction: column;
   align-items: center;
   padding-top: 15px;
   margin: 0 15px;
   margin-right: 30px;
 }
-main.preview .outestBox {
+main.right .previewBox {
   background-color: var(--grey-2);
   padding: 15px;
   border-radius: 15px;
   min-width: 300px;
 }
-main.preview .outestBox .top {
+main.right .previewBox .top {
   display: flex;
   justify-content: space-between;
   align-items: end;
   margin-bottom: 20px;
 }
-main.preview .outestBox .top .badges {
+main.right .previewBox .top .badges {
   display: flex;
   align-items: center;
   background-color: var(--grey-1);
@@ -339,104 +340,104 @@ main.preview .outestBox .top .badges {
   height: -moz-min-content;
   height: min-content;
 }
-main.preview .outestBox .top .badges img {
+main.right .previewBox .top .badges img {
   width: 20px;
   height: auto;
   margin: 0 2px;
 }
-main.preview .outestBox .top img {
+main.right .previewBox .top img {
   height: 80px;
   width: 80px;
   border-radius: 100%;
 }
-main.preview .outestBox .innerBox {
+main.right .previewBox .innerBox {
   background-color: var(--grey-1);
   border-radius: 15px;
   padding: 15px;
 }
-main.preview .outestBox .innerBox .nameSection {
+main.right .previewBox .innerBox .nameSection {
   padding-bottom: 10px;
   border-bottom: var(--grey-3) solid 2px;
   border-radius: 0px;
 }
-main.preview .outestBox .innerBox #preview_username {
+main.right .previewBox .innerBox #preview_username {
   color: var(--white-1);
   font-size: 20px;
 }
-main.preview .outestBox .innerBox .bio {
+main.right .previewBox .innerBox .bio {
   padding: 10px 0;
 }
-main.preview .outestBox .innerBox .bio span {
+main.right .previewBox .innerBox .bio span {
   color: var(--white-1);
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.5px;
 }
-main.preview .outestBox .innerBox .bio p {
+main.right .previewBox .innerBox .bio p {
   margin: 0;
   margin-top: 5px;
   font-size: 14px;
   color: var(--white-1);
   font-weight: 400;
 }
-main.preview .outestBox .innerBox .memberSection span {
+main.right .previewBox .innerBox .memberSection span {
   color: var(--white-1);
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.5px;
 }
-main.preview .outestBox .innerBox .memberSection span.memberTimestamp {
+main.right .previewBox .innerBox .memberSection span.memberTimestamp {
   font-weight: 400;
   letter-spacing: normal;
 }
-main.preview .outestBox .innerBox .memberSection img {
+main.right .previewBox .innerBox .memberSection img {
   height: 17px;
   margin-right: 7px;
   filter: grayscale(1);
 }
-main.preview .outestBox .innerBox .gameSection {
+main.right .previewBox .innerBox .gameSection {
   padding-top: 10px;
 }
-main.preview .outestBox .innerBox .gameSection span.title {
+main.right .previewBox .innerBox .gameSection span.title {
   color: var(--white-1);
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.5px;
 }
-main.preview .outestBox .innerBox .gameSection .game {
+main.right .previewBox .innerBox .gameSection .game {
   display: flex;
   align-items: center;
   margin: 5px 0;
 }
-main.preview .outestBox .innerBox .gameSection .textbox {
+main.right .previewBox .innerBox .gameSection .textbox {
   display: flex;
   flex-direction: column;
 }
-main.preview .outestBox .innerBox .gameSection .textbox span {
+main.right .previewBox .innerBox .gameSection .textbox span {
   line-height: 1.2;
   color: var(--light-grey);
   font-size: 14px;
 }
-main.preview .outestBox .innerBox .gameSection .textbox span.name {
+main.right .previewBox .innerBox .gameSection .textbox span.name {
   color: var(--white-1);
 }
-main.preview .outestBox .innerBox .gameSection .textbox .playersBox {
+main.right .previewBox .innerBox .gameSection .textbox .playersBox {
   display: block;
 }
-main.preview .outestBox .innerBox .gameSection .textbox .playersBox.hidden {
+main.right .previewBox .innerBox .gameSection .textbox .playersBox.hidden {
   display: none;
 }
-main.preview .outestBox .innerBox .gameSection .imgBox {
+main.right .previewBox .innerBox .gameSection .imgBox {
   position: relative;
 }
-main.preview .outestBox .innerBox .gameSection .imgBox .bigImg {
+main.right .previewBox .innerBox .gameSection .imgBox .bigImg {
   height: 70px;
   width: 70px;
   z-index: 1;
   margin-right: 10px;
   border-radius: 10px;
 }
-main.preview .outestBox .innerBox .gameSection .imgBox .smallImg {
+main.right .previewBox .innerBox .gameSection .imgBox .smallImg {
   position: absolute;
   bottom: 5px;
   right: 5px;
@@ -445,11 +446,11 @@ main.preview .outestBox .innerBox .gameSection .imgBox .smallImg {
   z-index: 3;
   border-radius: 100%;
 }
-main.preview .outestBox .innerBox .gameSection .buttons {
+main.right .previewBox .innerBox .gameSection .buttons {
   display: flex;
   flex-direction: column;
 }
-main.preview .outestBox .innerBox .gameSection .buttons button {
+main.right .previewBox .innerBox .gameSection .buttons button {
   background-color: var(--grey-3);
   border: none;
   border-radius: 3px;
@@ -460,7 +461,81 @@ main.preview .outestBox .innerBox .gameSection .buttons button {
   font-family: "Poppins", sans-serif;
   margin-top: 10px;
 }
-main.preview .outestBox .innerBox .gameSection .buttons button:hover {
+main.right .previewBox .innerBox .gameSection .buttons button:hover {
+  cursor: pointer;
+}
+main.right .presets {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--grey-2);
+  padding: 0 15px;
+  border-radius: 15px;
+  min-width: 300px;
+  max-width: 300px;
+  margin: 15px 0;
+}
+main.right .presets .presetbox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100%;
+  padding: 15px;
+  margin: 7.5px 0;
+  background-color: var(--grey-25);
+  border-radius: 15px;
+}
+main.right .presets .presetbox:first-of-type {
+  margin-top: 15px;
+}
+main.right .presets .presetbox:last-of-type {
+  margin-bottom: 15px;
+}
+main.right .presets .presetbox .name {
+  color: var(--white-1);
+  font-size: 18px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  background-color: transparent;
+  border: none;
+  -webkit-user-select: all;
+     -moz-user-select: all;
+          user-select: all;
+  padding: 1px;
+}
+main.right .presets .presetbox .name:focus {
+  background-color: var(--grey-3);
+  border-radius: 3px;
+  outline: var(--accent-1) solid 3px;
+}
+main.right .presets .presetbox .name:hover {
+  cursor: pointer;
+}
+main.right .presets .presetbox .buttons {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+}
+main.right .presets .presetbox .buttons button {
+  background-color: var(--grey-3);
+  border: none;
+  padding: 7px;
+  border-radius: 7px;
+  margin-left: 7px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+main.right .presets .presetbox .buttons button svg {
+  height: 20px;
+  width: 20px;
+}
+main.right .presets .presetbox .buttons button svg path {
+  stroke: var(--white-1);
+}
+main.right .presets .presetbox .buttons button:hover {
   cursor: pointer;
 }
 

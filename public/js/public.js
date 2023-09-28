@@ -151,7 +151,121 @@ window.bridge.sendStorageData((event, settings) => {
         document.getElementById("timestamp_appstart").selected = true;
     }
 
-    updatePreview()
+    updatePreview();
+
+    if (settings.presets) {
+        settings.presets.forEach((preset, index) => {
+            document.getElementById("presets").innerHTML += `<div class="presetbox">
+                <input type="text" data-prevname="${preset.name}" class="name" placeholder="Rename Preset" oninput="changeName('${preset.id}', this)" value="${preset.name}" title="Load Preset">
+                <div class="buttons">
+                    <button type="button" onclick="loadPreset('${preset.id}')" title="Load Preset"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#fefefe"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4 6C4 4.89543 4.89543 4 6 4H12H14.1716C14.702 4 15.2107 4.21071 15.5858 4.58579L19.4142 8.41421C19.7893 8.78929 20 9.29799 20 9.82843V12V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6Z" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 4H13V7C13 7.55228 12.5523 8 12 8H9C8.44772 8 8 7.55228 8 7V4Z" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M7 15C7 13.8954 7.89543 13 9 13H15C16.1046 13 17 13.8954 17 15V20H7V15Z" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
+                    <button type="button" onclick="removePreset('${preset.id}', this)" title="Delete Preset"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#fefefe"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M10 12V17" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M14 12V17" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M4 7H20" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
+                </div>
+            </div>`
+        });
+    }
+});
+
+const nameList = [ "Gold Preset", "Silver Preset", "Gold Preset", "Platinum Preset", "Iron Preset", "Hydrogen Preset" , "Helium Preset", "Lithium Preset", "Beryllium Preset", "Nitrogen Preset", "Oxygen Preset", "Neon Preset", "Sodium Preset", "Sulfur Preset", "Carbon Preset", "Phosphorus Preset", "Titanium Preset", "Krypton Preset", "Cesium Preset", "Bismuth Preset", "Uranium Preset" ];
+
+function savePreset() {
+    let partyPlayers = Number(document.getElementById("partyAmount").value);
+    if (partyPlayers <= 0) partyPlayers = -1;
+
+    let partyMayPlayers = Number(document.getElementById("partyMaxAmount").value);
+    if (partyMayPlayers <= 0) partyMayPlayers = -1;
+
+    const presetName = nameList[Math.floor( Math.random() * nameList.length )];
+    const presetId = Date.now().toString(32) + Math.random().toString(16).replace(/\./g, '');
+
+    window.api.invoke("addPreset", {
+        id: presetId,
+        name: presetName,
+        config: {
+            "details": document.getElementById("details").value,
+            "state": document.getElementById("state").value,
+            "large_image": document.getElementById("large_image").value,
+            "large_text": document.getElementById("large_text").value,
+            "small_image": document.getElementById("small_image").value,
+            "small_text": document.getElementById("small_text").value,
+            "party_players": partyPlayers,
+            "party_maxplayers": partyMayPlayers,
+            "start_time": document.getElementById("timestamp").value,
+            "customtimestamp": new Date(document.getElementById("customtimestamp").value).getTime(),
+            "buttons": [
+                {
+                    "label": document.getElementById("button_1_label").value,
+                    "url": document.getElementById("button_1_url").value
+                },
+                {
+                    "label": document.getElementById("button_2_label").value,
+                    "url": document.getElementById("button_2_url").value
+                }
+            ]
+        }
+    });
+
+    document.getElementById("presets").innerHTML += `<div class="presetbox">
+            <input type="text" data-prevname="${presetName}" class="name" placeholder="Rename Preset" oninput="changeName('${presetId}', this)" value="${presetName}" title="Load Preset">
+            <div class="buttons">
+                <button type="button" onclick="loadPreset('${presetId}')" title="Load Preset"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#fefefe"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4 6C4 4.89543 4.89543 4 6 4H12H14.1716C14.702 4 15.2107 4.21071 15.5858 4.58579L19.4142 8.41421C19.7893 8.78929 20 9.29799 20 9.82843V12V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6Z" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M8 4H13V7C13 7.55228 12.5523 8 12 8H9C8.44772 8 8 7.55228 8 7V4Z" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M7 15C7 13.8954 7.89543 13 9 13H15C16.1046 13 17 13.8954 17 15V20H7V15Z" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
+                <button type="button" onclick="removePreset('${presetId}', this)" title="Delete Preset"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#fefefe"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M10 12V17" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M14 12V17" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M4 7H20" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" stroke="#fefefe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
+            </div>
+        </div>`
+}
+
+function removePreset(presetid, btn) {
+    window.api.invoke("rmvPreset", presetid);
+
+    btn.parentNode.parentNode.remove();
+}
+
+function loadPreset(presetid) {
+    window.api.invoke("loadPreset", presetid);
+}
+
+function changeName(presetid, input) {
+    console.log(input)
+    window.api.invoke("renamePreset", {
+        presetId: presetid,
+        name: input.value
+    });
+}
+
+window.bridge.loadPreset((event, preset) => {
+    document.getElementById("details").value = preset.config.details || "";
+    document.getElementById("state").value = preset.config.state || "";
+
+    document.getElementById("partyAmount").value = preset.config.party_players || -1;
+    document.getElementById("partyMaxAmount").value = preset.config.party_maxplayers || -1;
+
+    document.getElementById("large_image").value = preset.config.large_image || "";
+    document.getElementById("large_text").value = preset.config.large_text || "";
+    document.getElementById("small_image").value = preset.config.small_image || "";
+    document.getElementById("small_text").value = preset.config.small_text || "";
+
+    document.getElementById("button_1_label").value = preset.config.buttons[0].label || "";
+    document.getElementById("button_1_url").value = preset.config.buttons[0].url || "";
+    document.getElementById("button_2_label").value = preset.config.buttons[1].label || "";
+    document.getElementById("button_2_url").value = preset.config.buttons[1].url || "";
+
+    document.getElementById("customtimestamp").value = new Date(preset.config.customtimestamp).toISOString().slice(0, -1);
+
+    if (preset.config.start_time === "custom") {
+        document.getElementById("timestamp_none").selected = false;
+        document.getElementById("timestamp_custom").selected = true;
+    } else if (preset.config.start_time === "localtime") {
+        document.getElementById("timestamp_none").selected = false;
+        document.getElementById("timestamp_localtime").selected = true;
+    } else if (preset.config.start_time === "lastupdate") {
+        document.getElementById("timestamp_none").selected = false;
+        document.getElementById("timestamp_lastupdate").selected = true;
+    } else if (preset.config.start_time === "appstart") {
+        document.getElementById("timestamp_none").selected = false;
+        document.getElementById("timestamp_appstart").selected = true;
+    }
+
+    updatePreview();
 });
 
 function updateActivity(btnEle) {

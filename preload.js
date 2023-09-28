@@ -17,7 +17,7 @@ window.addEventListener('DOMContentLoaded', () => {
 contextBridge.exposeInMainWorld(
     "api", {
         invoke: (channel, data) => {
-            let validChannels = ["openLogsWindow", "changelogging", "exportLogs", "closeLogsWindow", "refreshLogs", "minimize", "togglemaxwindow", "closeWindow", "updateActivity", "connectApp", "disconnectApp", "openExternalLink", "closeErrWindow", "closeSettingsWindow", "openSettingsWindow", "changeTheme", "changeZoom", "delData"];
+            let validChannels = ["openLogsWindow", "changelogging", "exportLogs", "closeLogsWindow", "refreshLogs", "minimize", "togglemaxwindow", "closeWindow", "updateActivity", "connectApp", "disconnectApp", "openExternalLink", "closeErrWindow", "closeSettingsWindow", "openSettingsWindow", "changeTheme", "changeZoom", "delData", "addPreset", "rmvPreset", "loadPreset", "renamePreset"];
             if (validChannels.includes(channel)) {
                 return ipcRenderer.invoke(channel, data);
             }
@@ -47,9 +47,13 @@ contextBridge.exposeInMainWorld(
         sendSettings: (message) => {
             ipcRenderer.on('sendSettings', message);
         },
-
+        
         sendLogs: (message) => {
             ipcRenderer.on('sendLogs', message);
+        },
+
+        loadPreset: (message) => {
+            ipcRenderer.on('loadPreset', message);
         }
     }
 );

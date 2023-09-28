@@ -95,7 +95,8 @@ const store = new Store({
         }
     }
 });
-//store.openInEditor()
+
+store.openInEditor()
 
 let appStartTime = new Date().getTime();
 let lastUpdate = new Date().getTime();
@@ -393,9 +394,63 @@ if (!gotTheLock) {
                 logAction("Error while exporting logs", err.message + "", "warning");
             })
         })
+
+        ipcMain.handle("addPreset", (event, preset) => {
+            let previousPresets = store.get("presets");
+
+            if (!previousPresets || typeof previousPresets !== "object") previousPresets = [];
+
+            previousPresets.push(preset);
+
+            store.set("presets", previousPresets);
+
+            logAction("Added Preset", `Added "${preset.name}"`, "neutral");
+        });
+
+        ipcMain.handle("rmvPreset", (event, presetid) => {
+            let previousPresets = store.get("presets");
+
+            if (!previousPresets || typeof previousPresets !== "object") return;
+
+            previousPresets = previousPresets.filter(x => x.id !== presetid);
+
+            store.set("presets", previousPresets);
+
+            logAction("Deleted Preset", ``, "neutral");
+        });
+
+        ipcMain.handle("loadPreset", (event, presetId) => {
+            let presets = store.get("presets");
+
+            if (!presets || typeof presets !== "object") return;
+
+            const preset = presets.find(o => o.id === presetId);
+
+            top.mainWindow.webContents.send("loadPreset", preset);
+
+            store.set("config", preset.config)
+            
+            updateDCActivity(preset.config);
+
+            logAction("Loaded Preset", `Loaded "${preset.name}"`, "neutral");
+        });
+
+        ipcMain.handle("renamePreset", (event, args) => {
+            let presets = store.get("presets");
+
+            if (!presets || typeof presets !== "object") return;
+
+            let presetIndex = presets.findIndex((x => x.id === args.presetId));
+
+            console.log(presets[presetIndex] + " : " + args.name)
+
+            presets[presetIndex].name = args.name;
+
+            store.set("presets", presets);
+        });
     
         logAction("App started", "", "success");
-    })
+    });
     
     app.on("before-quit", ev => {
         top.win.removeAllListeners("close");
@@ -481,7 +536,6 @@ if (!gotTheLock) {
             client.setActivity(activityObject)
             var activityObjectStr = JSON.stringify(activityObject, null, 4);
             logAction("Updated Activity", `Updated to the following:\n<br><br><div class="jsobjectbox">${activityObjectStr}</div>`);
-            console.log(activityObjectStr)
         }
     }
     

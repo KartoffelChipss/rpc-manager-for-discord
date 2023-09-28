@@ -1,6 +1,6 @@
 {
   "name": "discord-rp",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -9,6 +9,7 @@
   },
   "build": {
     "appId": "rpc-manager-for-discord",
+    "productName": "RPC Manager for Discord",
     "mac": {
       "target": "dmg",
       "icon": "public/img/logo.ico"
@@ -34,7 +35,11 @@
     }
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Jan Straßburger",
+    "email": "contact@strassburger.org",
+    "url": "https://strassburger.org/"
+  },
   "license": "GPL-2.0 license",
   "devDependencies": {
     "electron": "^22.0.0",
