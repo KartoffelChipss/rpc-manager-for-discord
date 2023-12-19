@@ -1,4 +1,4 @@
-# <img src="https://file.strassburger.org/discordCustomRPlogoPng.png" height="30px"> RPC Manager for Discord
+# <img src="https://file.strassburger.dev/discordCustomRPlogoPng.png" height="30px"> RPC Manager for Discord
 
 RPC Manager for Discord is a Discord Rich Presence Manager for Windows and MacOS.
 
